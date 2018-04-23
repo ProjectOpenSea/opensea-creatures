@@ -1,5 +1,5 @@
-const MyItem = artifacts.require("./MyItem.sol");
+const CryptoPenguin = artifacts.require("./CryptoPenguin.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(MyItem, "Cryptofluffies", "FLUFF");
+  deployer.deploy(CryptoPenguin);
 };
