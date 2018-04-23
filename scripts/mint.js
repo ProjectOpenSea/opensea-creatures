@@ -5,7 +5,7 @@ const INFURA_KEY = process.env.INFURA_KEY
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS
 const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
-const NUM_PUFFS = 10
+const NUM_PUFFS = 12
 
 if (!MNEMONIC || !INFURA_KEY) {
   console.error("Please set a mnemonic and infura key.")
@@ -33,7 +33,7 @@ async function main() {
     const itemContract = web3Instance.eth.contract(ABI).at(CONTRACT_ADDRESS)
     for (var i = 0; i < NUM_PUFFS; i++) {
         const puffId = i + 1
-        const result = await callContract(itemContract, "mintTo", OWNER_ADDRESS, `https://storage.googleapis.com/opensea-static/puffs/data/puff-${puffId}.json`,
+        const result = await callContract(itemContract, "mintTo", OWNER_ADDRESS, `https://cryptopuffs-api.herokuapp.com/api/puff/${puffId}`,
             { from: OWNER_ADDRESS })
         console.log(`https://${NETWORK}.etherscan.io/tx/${result}`)
     }

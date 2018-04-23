@@ -8,12 +8,7 @@ import "zeppelin-solidity/contracts/ownership/Ownable.sol";
  * CryptoPuff - a contract for my non-fungible crypto puffs.
  */
 contract CryptoPuff is ERC721Token, Ownable {
-    
-    // Mapping for token URIs
-    mapping(uint256 => string) internal tokenURIs;
-
-    string public constant NAME = "CryptoPuff";
-    string public constant SYMBOL = "PUFF";
+    function CryptoPuff() ERC721Token("CryptoPuff", "PUFF") public { }
 
     /**
     * @dev Mints a token to an address with a tokenURI.
@@ -23,31 +18,7 @@ contract CryptoPuff is ERC721Token, Ownable {
     function mintTo(address _to, string _tokenURI) public onlyOwner {
         uint256 newTokenId = _getNextTokenId();
         _mint(_to, newTokenId);
-        tokenURIs[newTokenId] = _tokenURI;
-    }
-
-    /**
-    * @dev returns the name ETHMOJI
-    * @return string ETHMOJI
-    */
-    function name() public pure returns (string) {
-        return NAME;
-    }
-
-    /**
-    * @dev returns the name EMJ
-    * @return string EMJ
-    */
-    function symbol() public pure returns (string) {
-        return SYMBOL;
-    }
-
-    /**
-    * @dev Returns an URI for a given token ID
-    * @param _tokenId uint256 ID of the token to query
-    */
-    function tokenURI(uint256 _tokenId) public view returns (string) {
-        return tokenURIs[_tokenId];
+        _setTokenURI(newTokenId, _tokenURI);
     }
 
     /**
