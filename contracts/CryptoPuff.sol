@@ -4,16 +4,16 @@ import "zeppelin-solidity/contracts/token/ERC721/ERC721Token.sol";
 import "zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
- * @title CryptoPenguin
- * CryptoPenguin - a contract for my non-fungible crypto penguins.
+ * @title CryptoPuff
+ * CryptoPuff - a contract for my non-fungible crypto puffs.
  */
-contract CryptoPenguin is ERC721Token, Ownable {
+contract CryptoPuff is ERC721Token, Ownable {
     
     // Mapping for token URIs
     mapping(uint256 => string) internal tokenURIs;
 
-    string public constant NAME = "CryptoPenguin";
-    string public constant SYMBOL = "PENG";
+    string public constant NAME = "CryptoPuff";
+    string public constant SYMBOL = "PUFF";
 
     /**
     * @dev Mints a token to an address with a tokenURI.

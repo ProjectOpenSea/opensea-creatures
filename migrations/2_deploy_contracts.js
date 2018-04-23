@@ -1,5 +1,5 @@
-const CryptoPenguin = artifacts.require("./CryptoPenguin.sol");
+const CryptoPuff = artifacts.require("./CryptoPuff.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(CryptoPenguin);
+  deployer.deploy(CryptoPuff);
 };
