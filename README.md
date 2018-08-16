@@ -13,6 +13,10 @@ export INFURA_KEY="<infura_key>"; export MNEMONIC="<metmask_mnemonic>"; truffle 
 
 After deploying to the Rinkeby network, there will be a contract on Rinkeby that will be viewable on [Rinkeby Etherscan](https://rinkeby.etherscan.io). For example, here is a [recently deployed contract](https://rinkeby.etherscan.io/address/0xeba05c5521a3b81e23d15ae9b2d07524bc453561). You should set this contract address and the address of your Metamask account as environment variables when running the minting script:
 
+This project uses [Abacus](https://abacusprotocol.com/) to host ERC721 metadata and images. You'll need to sign up for an account, create an application, and get an API key.
+
+You should set this contract address and the address of your Metamask account as environment variables when running the minting script
+
 ```
-export INFURA_KEY="<infura_key>"; export MNEMONIC="<metmask_mnemonic>"; export OWNER_ADDRESS="<my_address>"; export CONTRACT_ADDRESS="<deployed_contract_address>"; export NETWORK="rinkeby"; node scripts/mint.js
+export ABACUS_APP_ID=<abacus_app_id>; export ABACUS_API_KEY=<abacus_api_key>; export INFURA_KEY="<infura_key>"; export MNEMONIC="<metmask_mnemonic>"; export OWNER_ADDRESS="<my_address>"; export CONTRACT_ADDRESS="<deployed_contract_address>"; export NETWORK="rinkeby"; node scripts/mint.js
 ```
