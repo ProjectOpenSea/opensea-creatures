@@ -7,8 +7,8 @@ const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
 const NUM_PUFFS = 12
 
-if (!MNEMONIC || !INFURA_KEY) {
-    console.error("Please set a mnemonic and infura key.")
+if (!MNEMONIC || !INFURA_KEY || !OWNER_ADDRESS || !NETWORK || !CONTRACT_ADDRESS) {
+    console.error("Please set a mnemonic, infura key, owner, network, and contract address.")
     return
 }
 
@@ -33,7 +33,7 @@ async function main() {
 
     for (var i = 0; i < NUM_PUFFS; i++) {
         const puffId = i + 1
-        const result = await itemContract.methods.mintWithTokenURI(OWNER_ADDRESS,
+        const result = await itemContract.methods.mintTo(OWNER_ADDRESS,
             `https://cryptopuffs-api.herokuapp.com/api/puff/${puffId}`).send({ from: OWNER_ADDRESS });
         console.log(result.transactionHash)
     } 
