@@ -32,7 +32,8 @@ async function main() {
 
     for (var i = 0; i < NUM_PUFFS; i++) {
         const puffId = i + 1
-        const result = await itemContract.methods.mintTo(OWNER_ADDRESS,
+        const result = await itemContract.methods.mintWithTokenURI(OWNER_ADDRESS,
+            `${puffId}`,
             `https://cryptopuffs-api.herokuapp.com/api/puff/${puffId}`).send({ from: OWNER_ADDRESS });
         console.log(result.transactionHash)
     } 

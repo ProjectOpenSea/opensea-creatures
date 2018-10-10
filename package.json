@@ -20,13 +20,15 @@
     "chai-as-promised": "^7.1.1",
     "chai-bignumber": "^2.0.2",
     "debug": "3.0.1",
-    "eth-gas-reporter": "^0.1.1",
+    "eth-gas-reporter": "^0.1.12",
     "ethereumjs-abi": "^0.6.5",
     "keccak": "^1.4.0",
+    "openzeppelin-solidity": "^1.12.0",
     "sha256": "^0.2.0",
-    "truffle": "4.0.1",
+    "sha3": "1.2.0",
+    "solc": "^0.4.24",
+    "truffle": "^4.1.14",
     "truffle-hdwallet-provider": "^0.0.3",
-    "web3": "1.0.0-beta.34",
-    "zeppelin-solidity": "^1.8.0"
+    "web3": "^1.0.0-beta2"
   }
 }
