@@ -9,6 +9,7 @@ const NUM_PUFFS = 12
 
 if (!MNEMONIC || !INFURA_KEY) {
     console.error("Please set a mnemonic and infura key.")
+    return
 }
 
 const ABI = [{
@@ -33,7 +34,6 @@ async function main() {
     for (var i = 0; i < NUM_PUFFS; i++) {
         const puffId = i + 1
         const result = await itemContract.methods.mintWithTokenURI(OWNER_ADDRESS,
-            `${puffId}`,
             `https://cryptopuffs-api.herokuapp.com/api/puff/${puffId}`).send({ from: OWNER_ADDRESS });
         console.log(result.transactionHash)
     } 
