@@ -6,6 +6,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS
 const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
 const NUM_PUFFS = 12
+const NUM_SALE_ITEMS = 4
 
 if (!MNEMONIC || !INFURA_KEY || !OWNER_ADDRESS || !NETWORK || !CONTRACT_ADDRESS) {
     console.error("Please set a mnemonic, infura key, owner, network, and contract address.")
@@ -37,6 +38,16 @@ async function main() {
             `https://cryptopuffs-api.herokuapp.com/api/puff/${puffId}`).send({ from: OWNER_ADDRESS });
         console.log(result.transactionHash)
     } 
+
+
+    // Presale configuration. Uncomment if you want to mint lootboxes.
+    // const saleItemContract = new web3Instance.eth.Contract(ABI, CONTRACT_ADDRESS, { gasLimit: "1000000" })
+    // for (var i = 0; i < NUM_PUFFS; i++) {
+    //     const lootboxId = i + 1
+    //     const result = await itemContract.methods.mintTo(OWNER_ADDRESS,
+    //         `https://cryptopuffs-api.herokuapp.com/api/lootbox/${lootboxId}`).send({ from: OWNER_ADDRESS });
+    //     console.log(result.transactionHash)
+    // }
 }
 
 main()
