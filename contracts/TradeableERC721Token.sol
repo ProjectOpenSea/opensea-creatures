@@ -40,7 +40,7 @@ contract TradeableERC721Token is ERC721Token, Ownable {
   }
 
   /**
-   * 
+   * Override isApprovedForAll to whitelist user's OpenSea proxy accounts to enable gas-less listings.
    */
   function isApprovedForAll(
     address owner,
