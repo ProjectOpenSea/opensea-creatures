@@ -2,6 +2,7 @@ pragma solidity ^0.4.24;
 
 import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
 import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+import './Strings.sol';
 
 contract OwnableDelegateProxy { }
 
@@ -14,7 +15,10 @@ contract ProxyRegistry {
  * TradeableERC721Token - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
 contract TradeableERC721Token is ERC721Token, Ownable {
+  using Strings for string;
+
   address proxyRegistryAddress;
+  string public baseURI = "";
 
   constructor(string _name, string _symbol, address _proxyRegistryAddress) ERC721Token(_name, _symbol) public {
     proxyRegistryAddress = _proxyRegistryAddress;
@@ -23,12 +27,10 @@ contract TradeableERC721Token is ERC721Token, Ownable {
   /**
     * @dev Mints a token to an address with a tokenURI.
     * @param _to address of the future owner of the token
-    * @param _tokenURI token URI for the token
     */
-  function mintTo(address _to, string _tokenURI) public onlyOwner {
+  function mintTo(address _to) public onlyOwner {
     uint256 newTokenId = _getNextTokenId();
     _mint(_to, newTokenId);
-    _setTokenURI(newTokenId, _tokenURI);
   }
 
   /**
@@ -37,6 +39,13 @@ contract TradeableERC721Token is ERC721Token, Ownable {
     */
   function _getNextTokenId() private view returns (uint256) {
     return totalSupply().add(1);
+  }
+
+  function tokenURI(uint256 _tokenId) public view returns (string) {
+    return Strings.strConcat(
+        baseURI,
+        Strings.uint2str(_tokenId)
+    );
   }
 
   /**

@@ -1,5 +1,6 @@
 const CryptoPuff = artifacts.require("./CryptoPuff.sol");
-const CryptoPuffSaleItem = artifacts.require("./CryptoPuffSaleItem.sol");
+const CryptoPuffFactory = artifacts.require("./CryptoPuffFactory.sol")
+const CryptoPuffLootBox = artifacts.require("./CryptoPuffLootBox.sol");
 
 module.exports = function(deployer, network) {
   // OpenSea proxy registry addresses for rinkeby and mainnet.
@@ -9,8 +10,10 @@ module.exports = function(deployer, network) {
   } else {
     proxyRegistryAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
   }
-  deployer.deploy(CryptoPuff, proxyRegistryAddress, {gas: 5000000});
-
-  // Uncomment if you want to deploy an item sale contract.
-  //deployer.deploy(CryptoPuffSaleItem)
+  deployer.deploy(CryptoPuff, proxyRegistryAddress, {gas: 5000000}).then(() => {
+    return deployer.deploy(CryptoPuffFactory, proxyRegistryAddress, CryptoPuff.address, {gas: 7000000});
+  }).then(async() => {
+    var cryptoPuff = await CryptoPuff.deployed();
+    return cryptoPuff.transferOwnership(CryptoPuffFactory.address);
+  })
 };
