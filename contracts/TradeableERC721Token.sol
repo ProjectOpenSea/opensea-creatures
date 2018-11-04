@@ -18,7 +18,6 @@ contract TradeableERC721Token is ERC721Token, Ownable {
   using Strings for string;
 
   address proxyRegistryAddress;
-  string public baseURI = "";
 
   constructor(string _name, string _symbol, address _proxyRegistryAddress) ERC721Token(_name, _symbol) public {
     proxyRegistryAddress = _proxyRegistryAddress;
@@ -41,9 +40,13 @@ contract TradeableERC721Token is ERC721Token, Ownable {
     return totalSupply().add(1);
   }
 
+  function baseTokenURI() public view returns (string) {
+    return "";
+  }
+
   function tokenURI(uint256 _tokenId) public view returns (string) {
     return Strings.strConcat(
-        baseURI,
+        baseTokenURI(),
         Strings.uint2str(_tokenId)
     );
   }

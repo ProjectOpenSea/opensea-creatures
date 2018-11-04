@@ -14,7 +14,6 @@ contract CryptoPuffLootBox is TradeableERC721Token {
     uint256 NUM_PUFFS_PER_BOX = 3;
     uint256 OPTION_ID = 0;
     address factoryAddress;
-    string public baseURI = "https://cryptopuffs-api.herokuapp.com/api/box/";
 
     constructor(address _proxyRegistryAddress, address _factoryAddress) TradeableERC721Token("CryptoPuffLootBox", "PUFFBOX", _proxyRegistryAddress) public {
         factoryAddress = _factoryAddress;
@@ -32,5 +31,9 @@ contract CryptoPuffLootBox is TradeableERC721Token {
 
         // Burn the presale item.
         _burn(msg.sender, _tokenId);
+    }
+
+    function baseTokenURI() public view returns (string) {
+        return "https://cryptopuffs-api.herokuapp.com/api/box/";
     }
 }
