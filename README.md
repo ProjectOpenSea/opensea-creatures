@@ -1,6 +1,6 @@
-## CryptoPuffs ERC721 contracts
+## OpenSeaCreatures ERC721 contracts
 
-### About CryptoPuffs.
+### About OpenSeaCreatures.
 
 This is a very simple sample ERC721 for the purposes of demonstrating integration with the [OpenSea](https://opensea.io) marketplace. We include a script for minting the items.
 

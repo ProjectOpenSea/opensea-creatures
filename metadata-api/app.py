@@ -68,8 +68,8 @@ def box(token_id):
     _add_attribute(attributes, 'number_inside', [3], token_id)
 
     return jsonify({
-        'name': "CryptoPuff Loot Box",
-        'description': "This lootbox contains some cryptopuffs! It can also be traded!",
+        'name': "Creature Loot Box",
+        'description': "This lootbox contains some OpenSea Creatures! It can also be traded!",
         'imageUrl': image_url,
         'externalUrl': 'https://cryptopuff.io/%s' % token_id,
         'attributes': attributes
@@ -85,8 +85,8 @@ def factory(token_id):
     _add_attribute(attributes, 'number_inside', [1], token_id)
 
     return jsonify({
-        'name': "CryptoPuff Sale",
-        'description': "Buy a magical CryptoPuff of random variety!",
+        'name': "Creature Sale",
+        'description': "Buy a magical Creature of random variety!",
         'imageUrl': image_url,
         'externalUrl': 'https://cryptopuff.io/%s' % token_id,
         'attributes': attributes

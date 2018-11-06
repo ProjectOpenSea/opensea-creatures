@@ -1,6 +1,6 @@
-const CryptoPuff = artifacts.require("./CryptoPuff.sol");
-const CryptoPuffFactory = artifacts.require("./CryptoPuffFactory.sol")
-const CryptoPuffLootBox = artifacts.require("./CryptoPuffLootBox.sol");
+const OpenSeaCreature = artifacts.require("./OpenSeaCreature.sol");
+const OpenSeaCreatureFactory = artifacts.require("./OpenSeaCreatureFactory.sol")
+const OpenSeaCreatureLootBox = artifacts.require("./OpenSeaCreatureLootBox.sol");
 
 module.exports = function(deployer, network) {
   // OpenSea proxy registry addresses for rinkeby and mainnet.
@@ -10,10 +10,10 @@ module.exports = function(deployer, network) {
   } else {
     proxyRegistryAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
   }
-  deployer.deploy(CryptoPuff, proxyRegistryAddress, {gas: 5000000}).then(() => {
-    return deployer.deploy(CryptoPuffFactory, proxyRegistryAddress, CryptoPuff.address, {gas: 7000000});
+  deployer.deploy(OpenSeaCreature, proxyRegistryAddress, {gas: 5000000}).then(() => {
+    return deployer.deploy(OpenSeaCreatureFactory, proxyRegistryAddress, OpenSeaCreature.address, {gas: 7000000});
   }).then(async() => {
-    var cryptoPuff = await CryptoPuff.deployed();
-    return cryptoPuff.transferOwnership(CryptoPuffFactory.address);
+    var openSeaCreature = await OpenSeaCreature.deployed();
+    return openSeaCreature.transferOwnership(OpenSeaCreatureFactory.address);
   })
 };

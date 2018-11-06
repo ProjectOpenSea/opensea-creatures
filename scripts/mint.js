@@ -5,7 +5,7 @@ const INFURA_KEY = process.env.INFURA_KEY
 const FACTORY_CONTRACT_ADDRESS = process.env.FACTORY_CONTRACT_ADDRESS
 const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
-const NUM_PUFFS = 12
+const NUM_CREATURES = 12
 const NUM_LOOTBOXES = 4
 const DEFAULT_OPTION_ID = 0
 const LOOTBOX_OPTION_ID = 2
@@ -41,14 +41,14 @@ async function main() {
 
     const factoryContract = new web3Instance.eth.Contract(ABI, FACTORY_CONTRACT_ADDRESS, { gasLimit: "1000000" })
 
-    // Puffs issued directly to the owner.
-    for (var i = 0; i < NUM_PUFFS; i++) {
+    // Creatures issued directly to the owner.
+    for (var i = 0; i < NUM_CREATURES; i++) {
         const result = await factoryContract.methods.mint(DEFAULT_OPTION_ID, OWNER_ADDRESS).send({ from: OWNER_ADDRESS });
         console.log(result.transactionHash)
     }
 
     // Lootboxes issued directly to the owner.
-    for (var i = 0; i < NUM_PUFFS; i++) {
+    for (var i = 0; i < NUM_LOOTBOXES; i++) {
         const result = await factoryContract.methods.mint(LOOTBOX_OPTION_ID, OWNER_ADDRESS).send({ from: OWNER_ADDRESS });
         console.log(result.transactionHash)
     }

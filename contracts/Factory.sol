@@ -1,13 +1,21 @@
 pragma solidity ^0.4.24;
 
-import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
-
 /**
  * This is a generic factory contract that can be used to mint tokens. The configuration
  * for minting is specified by an _optionId, which can be used to delineate various 
  * ways of minting.
  */
 interface Factory {
+  /**
+   * Returns the name of this factory.
+   */
+  function name() external view returns (string);
+
+  /**
+   * Returns the symbol for this factory.
+   */
+  function symbol() external view returns (string);
+
   /**
    * Number of options the factory supports.
    */
