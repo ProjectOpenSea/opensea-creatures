@@ -44,7 +44,7 @@ def creature(token_id):
     mouth = MOUTH[token_id % len(MOUTH)]
     image_url = _compose_image(['images/bases/base-%s.png' % base,
                                 'images/eyes/eyes-%s.png' % eyes,
-                                'images/eyes/mouth-%s.png' % mouth],
+                                'images/mouths/mouth-%s.png' % mouth],
                                token_id)
 
     attributes = []
@@ -126,8 +126,7 @@ def _compose_image(image_files, token_id, path="puffs"):
     composite.save(output_path)
 
     blob = _get_bucket().blob(f"{path}/{token_id}.png")
-    if not blob.exists():
-        blob.upload_from_filename(filename=output_path)
+    blob.upload_from_filename(filename=output_path)
     return blob.public_url
 
 
