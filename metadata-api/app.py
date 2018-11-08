@@ -71,7 +71,7 @@ def creature(token_id):
 @app.route('/api/box/<token_id>')
 def box(token_id):
     token_id = int(token_id)
-    image_url = _compose_image(['images/box/multiple-eggs.png'], token_id, "box")
+    image_url = _compose_image(['images/box/lootbox.png'], token_id, "box")
 
     attributes = []
     _add_attribute(attributes, 'number_inside', [3], token_id)
@@ -88,7 +88,12 @@ def box(token_id):
 @app.route('/api/factory/<token_id>')
 def factory(token_id):
     token_id = int(token_id)
-    image_url = _compose_image(['images/mystery/egg.png'], token_id, "factory")
+    if token_id == 0:
+        image_url = _compose_image(['images/factory/egg.png'], token_id, "factory")
+    elif token_id == 1:
+        image_url = _compose_image(['images/factory/four-eggs.png'], token_id, "factory")
+    elif token_id == 2:
+        image_url = _compose_image(['images/box/lootbox.png'], token_id, "factory")
 
     attributes = []
     _add_attribute(attributes, 'number_inside', [1], token_id)

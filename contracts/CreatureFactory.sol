@@ -12,7 +12,7 @@ contract CreatureFactory is Factory, Ownable {
   address public proxyRegistryAddress;
   address public nftAddress;
   address public lootBoxNftAddress;
-  string public baseURI = "https://opensea-creature-api.herokuapp.com/api/factory/";
+  string public baseURI = "https://opensea-creatures-api.herokuapp.com/api/factory/";
 
   /**
    * Enforce the existence of only 100 OpenSea creatures.
@@ -51,11 +51,9 @@ contract CreatureFactory is Factory, Ownable {
   }
   
   function mint(uint256 _optionId, address _toAddress) public {
-    require(msg.sender == owner || msg.sender == lootBoxNftAddress);
-
     // Must be sent from the owner proxy or owner.
     ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
-    assert(proxyRegistry.proxies(owner) == msg.sender || owner == msg.sender);
+    assert(proxyRegistry.proxies(owner) == msg.sender || owner == msg.sender || msg.sender == lootBoxNftAddress);
     require(canMint(_optionId));
 
     Creature openSeaCreature = Creature(nftAddress);
@@ -128,5 +126,13 @@ contract CreatureFactory is Factory, Ownable {
     }
 
     return false;
+  }
+
+  /**
+   * Hack to get things to work automatically on OpenSea.
+   * Use isApprovedForAll so the frontend doesn't have to worry about different method names.
+   */
+  function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+    return owner;
   }
 }

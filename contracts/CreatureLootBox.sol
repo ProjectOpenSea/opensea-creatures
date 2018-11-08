@@ -34,7 +34,7 @@ contract CreatureLootBox is TradeableERC721Token {
     }
 
     function baseTokenURI() public view returns (string) {
-        return "https://opensea-creature-api.herokuapp.com/api/box/";
+        return "https://opensea-creatures-api.herokuapp.com/api/box/";
     }
 
     function itemsPerLootbox() public view returns (uint256) {
