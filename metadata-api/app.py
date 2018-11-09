@@ -89,18 +89,27 @@ def box(token_id):
 def factory(token_id):
     token_id = int(token_id)
     if token_id == 0:
+        name = "One creature"
+        description = "Buy a single aquatic being"
         image_url = _compose_image(['images/factory/egg.png'], token_id, "factory")
+        num_inside = 1
     elif token_id == 1:
+        name = "Four creatures"
+        description = "Purchase four aquatic beings of random variety"
         image_url = _compose_image(['images/factory/four-eggs.png'], token_id, "factory")
+        num_inside = 4
     elif token_id == 2:
+        name = "Creature lootbox"
+        description = "Buy a tradeable lootbox of 3 acquatic beings"
         image_url = _compose_image(['images/box/lootbox.png'], token_id, "factory")
+        num_inside = 3
 
     attributes = []
-    _add_attribute(attributes, 'number_inside', [1], token_id)
+    _add_attribute(attributes, 'number_inside', [num_inside], token_id)
 
     return jsonify({
-        'name': "Creature Sale",
-        'description': "Buy a magical Creature of random variety!",
+        'name': name,
+        'description': description,
         'imageUrl': image_url,
         'externalUrl': 'https://openseacreatures.io/%s' % token_id,
         'attributes': attributes

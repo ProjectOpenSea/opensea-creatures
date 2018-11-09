@@ -10,10 +10,14 @@ module.exports = function(deployer, network) {
   } else {
     proxyRegistryAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
   }
-  deployer.deploy(Creature, proxyRegistryAddress, {gas: 5000000}).then(() => {
-    return deployer.deploy(CreatureFactory, proxyRegistryAddress, Creature.address, {gas: 7000000});
-  }).then(async() => {
-    var creature = await Creature.deployed();
-    return creature.transferOwnership(CreatureFactory.address);
-  })
+
+  deployer.deploy(Creature, proxyRegistryAddress, {gas: 5000000});
+  
+  // Uncomment this if you want initial item sale support.
+  // deployer.deploy(Creature, proxyRegistryAddress, {gas: 5000000}).then(() => {
+  //   return deployer.deploy(CreatureFactory, proxyRegistryAddress, Creature.address, {gas: 7000000});
+  // }).then(async() => {
+  //   var creature = await Creature.deployed();
+  //   return creature.transferOwnership(CreatureFactory.address);
+  // })
 };
