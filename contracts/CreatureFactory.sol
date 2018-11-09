@@ -17,16 +17,16 @@ contract CreatureFactory is Factory, Ownable {
   /**
    * Enforce the existence of only 100 OpenSea creatures.
    */
-  uint256 PUFF_SUPPLY = 100;
+  uint256 CREATURE_SUPPLY = 100;
 
   /**
    * Three different options for minting Creatures (basic, premium, and gold).
    */
   uint256 NUM_OPTIONS = 3;
-  uint256 SINGLE_PUFF_OPTION = 0;
-  uint256 MULTIPLE_PUFF_OPTION = 1;
+  uint256 SINGLE_CREATURE_OPTION = 0;
+  uint256 MULTIPLE_CREATURE_OPTION = 1;
   uint256 LOOTBOX_OPTION = 2;
-  uint256 NUM_PUFFS_IN_MULTIPLE_PUFF_OPTION = 4;
+  uint256 NUM_CREATURES_IN_MULTIPLE_CREATURE_OPTION = 4;
 
   constructor(address _proxyRegistryAddress, address _nftAddress) public {
     proxyRegistryAddress = _proxyRegistryAddress;
@@ -57,10 +57,10 @@ contract CreatureFactory is Factory, Ownable {
     require(canMint(_optionId));
 
     Creature openSeaCreature = Creature(nftAddress);
-    if (_optionId == SINGLE_PUFF_OPTION) {
+    if (_optionId == SINGLE_CREATURE_OPTION) {
       openSeaCreature.mintTo(_toAddress);
-    } else if (_optionId == MULTIPLE_PUFF_OPTION) {
-      for (uint256 i = 0; i < NUM_PUFFS_IN_MULTIPLE_PUFF_OPTION; i++) {
+    } else if (_optionId == MULTIPLE_CREATURE_OPTION) {
+      for (uint256 i = 0; i < NUM_CREATURES_IN_MULTIPLE_CREATURE_OPTION; i++) {
         openSeaCreature.mintTo(_toAddress);
       }
     } else if (_optionId == LOOTBOX_OPTION) {
@@ -75,18 +75,18 @@ contract CreatureFactory is Factory, Ownable {
     }
 
     Creature openSeaCreature = Creature(nftAddress);
-    uint256 puffSupply = openSeaCreature.totalSupply();
+    uint256 creatureSupply = openSeaCreature.totalSupply();
 
     uint256 numItemsAllocated = 0;
-    if (_optionId == SINGLE_PUFF_OPTION) {
+    if (_optionId == SINGLE_CREATURE_OPTION) {
       numItemsAllocated = 1;
-    } else if (_optionId == MULTIPLE_PUFF_OPTION) {
-      numItemsAllocated = NUM_PUFFS_IN_MULTIPLE_PUFF_OPTION;
+    } else if (_optionId == MULTIPLE_CREATURE_OPTION) {
+      numItemsAllocated = NUM_CREATURES_IN_MULTIPLE_CREATURE_OPTION;
     } else if (_optionId == LOOTBOX_OPTION) {
       CreatureLootBox openSeaCreatureLootBox = CreatureLootBox(lootBoxNftAddress);
       numItemsAllocated = openSeaCreatureLootBox.itemsPerLootbox();
     }
-    return puffSupply < (PUFF_SUPPLY - numItemsAllocated);
+    return creatureSupply < (CREATURE_SUPPLY - numItemsAllocated);
   }
   
   function tokenURI(uint256 _optionId) public view returns (string) {

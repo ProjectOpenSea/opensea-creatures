@@ -54,7 +54,7 @@ def creature(token_id):
     _add_attribute(attributes, 'level', INT_ATTRIBUTES, token_id)
     _add_attribute(attributes, 'stamina', FLOAT_ATTRIBUTES, token_id)
     _add_attribute(attributes, 'personality', STR_ATTRIBUTES, token_id)
-    _add_attribute(attributes, 'puff_power', BOOST_ATTRIBUTES, token_id, display_type="boost_number")
+    _add_attribute(attributes, 'aqua_power', BOOST_ATTRIBUTES, token_id, display_type="boost_number")
     _add_attribute(attributes, 'stamina_increase', PERCENT_BOOST_ATTRIBUTES, token_id, display_type="boost_percentage")
     _add_attribute(attributes, 'generation', NUMBER_ATTRIBUTES, token_id, display_type="number")
 
@@ -62,8 +62,8 @@ def creature(token_id):
     return jsonify({
         'name': creature_name,
         'description': "Friendly OpenSea Creature that enjoys long swims in the ocean.",
-        'imageUrl': image_url,
-        'externalUrl': 'https://openseacreatures.io/%s' % token_id,
+        'image': image_url,
+        'external_url': 'https://openseacreatures.io/%s' % token_id,
         'attributes': attributes
     })
 
@@ -79,8 +79,8 @@ def box(token_id):
     return jsonify({
         'name': "Creature Loot Box",
         'description': "This lootbox contains some OpenSea Creatures! It can also be traded!",
-        'imageUrl': image_url,
-        'externalUrl': 'https://openseacreatures.io/%s' % token_id,
+        'image': image_url,
+        'external_url': 'https://openseacreatures.io/%s' % token_id,
         'attributes': attributes
     })
 
@@ -89,18 +89,21 @@ def box(token_id):
 def factory(token_id):
     token_id = int(token_id)
     if token_id == 0:
-        name = "One creature"
-        description = "Buy a single aquatic being"
+        name = "One OpenSea creature"
+        description = "When you purchase this option, you will receive a single OpenSea creature of a random variety. " \
+                      "Enjoy and take good care of your aquatic being!"
         image_url = _compose_image(['images/factory/egg.png'], token_id, "factory")
         num_inside = 1
     elif token_id == 1:
-        name = "Four creatures"
-        description = "Purchase four aquatic beings of random variety"
+        name = "Four OpenSea creatures"
+        description = "When you purchase this option, you will receive four OpenSea creatures of random variety. " \
+                      "Enjoy and take good care of your aquatic beings!"
         image_url = _compose_image(['images/factory/four-eggs.png'], token_id, "factory")
         num_inside = 4
     elif token_id == 2:
-        name = "Creature lootbox"
-        description = "Buy a tradeable lootbox of 3 acquatic beings"
+        name = "One OpenSea creature lootbox"
+        description = "When you purchase this option, you will receive one lootbox, which can be opened to reveal three " \
+                      "OpenSea creatures of random variety. Enjoy and take good care of these cute aquatic beings!"
         image_url = _compose_image(['images/box/lootbox.png'], token_id, "factory")
         num_inside = 3
 
@@ -110,8 +113,8 @@ def factory(token_id):
     return jsonify({
         'name': name,
         'description': description,
-        'imageUrl': image_url,
-        'externalUrl': 'https://openseacreatures.io/%s' % token_id,
+        'image': image_url,
+        'external_url': 'https://openseacreatures.io/%s' % token_id,
         'attributes': attributes
     })
 
@@ -126,7 +129,7 @@ def _add_attribute(existing, attribute_name, options, token_id, display_type=Non
     existing.append(trait)
 
 
-def _compose_image(image_files, token_id, path="puffs"):
+def _compose_image(image_files, token_id, path="creature"):
     composite = None
     for image_file in image_files:
         foreground = Image.open(image_file).convert("RGBA")
