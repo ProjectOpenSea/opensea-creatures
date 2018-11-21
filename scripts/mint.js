@@ -51,8 +51,10 @@ const FACTORY_ABI = [{
 }]
 
 async function main() {
+    const provider = new HDWalletProvider(MNEMONIC, `https://${NETWORK}.infura.io/${INFURA_KEY}`)
+    provider.signPersonalMessage = provider.signMessage
     const web3Instance = new web3(
-        new HDWalletProvider(MNEMONIC, `https://${NETWORK}.infura.io/${INFURA_KEY}`)
+        provider
     )
 
     if (NFT_CONTRACT_ADDRESS) {
