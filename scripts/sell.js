@@ -49,12 +49,12 @@ async function main() {
     if (FACTORY_CONTRACT_ADDRESS) {
 
         // Example: many declining Dutch auction.
-        for (var i = 0; i < NUM_DUTCH_AUCTIONS; i++) {
-            //const expirationTime = ...
-            const sellOrder = await seaport.createSellOrder({ tokenId: DUTCH_AUCTION_OPTION_ID, tokenAddress: FACTORY_CONTRACT_ADDRESS, accountAddress: OWNER_ADDRESS, 
-                startAmount: DUTCH_AUCTION_START_AMOUNT, endAmount: DUTCH_AUCTION_END_AMOUNT, expirationTime: expirationTime })
-            console.log(sellOrder)
-        }
+        // for (var i = 0; i < NUM_DUTCH_AUCTIONS; i++) {
+        //     //const expirationTime = ...
+        //     const sellOrder = await seaport.createSellOrder({ tokenId: DUTCH_AUCTION_OPTION_ID, tokenAddress: FACTORY_CONTRACT_ADDRESS, accountAddress: OWNER_ADDRESS, 
+        //         startAmount: DUTCH_AUCTION_START_AMOUNT, endAmount: DUTCH_AUCTION_END_AMOUNT, expirationTime: expirationTime })
+        //     console.log(sellOrder)
+        // }
 
         // Example: many fixed price auctions.
         for (var i = 0; i < NUM_FIXED_PRICE_AUCTIONS; i++) {
