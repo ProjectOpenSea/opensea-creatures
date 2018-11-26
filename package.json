@@ -31,7 +31,7 @@
     "solc": "^0.4.24",
     "truffle": "^4.1.14",
     "truffle-flattener": "^1.2.9",
-    "truffle-hdwallet-provider": "0.0.7-beta.0",
+    "truffle-hdwallet-provider": "git://github.com/trufflesuite/truffle-hdwallet-provider",
     "web3": "1.0.0-beta.34"
   },
   "engines": {

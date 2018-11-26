@@ -1,4 +1,4 @@
-const opensea = require('opensea-js')
+const opensea = require('../../opensea-js')
 const OpenSeaPort = opensea.OpenSeaPort;
 const Network = opensea.Network;
 
@@ -14,8 +14,12 @@ const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
 const DUTCH_AUCTION_OPTION_ID = "1";
 const DUTCH_AUCTION_START_AMOUNT = 100;
-const DUTCH_AUCTION_END_AMOUNT = 50;
+const DUTCH_AUCTION_END_AMOUNT = 50;    
 const NUM_DUTCH_AUCTIONS = 5;
+
+const FIXED_PRICE_OPTION_ID = "2";
+const NUM_FIXED_PRICE_AUCTIONS = 10;
+const FIXED_PRICE = 100;
 
 const INCLINE_PRICE_START = 10;
 const INCREMENT_AMOUNT = 10;
@@ -26,10 +30,10 @@ if (!MNEMONIC || !INFURA_KEY || !NETWORK || !OWNER_ADDRESS) {
     console.error("Please set a mnemonic, infura key, owner, network, and contract address.")
     return
 }
-
-const mnemonicWalletSubprovider = new MnemonicWalletSubprovider({ mnemonic: MNEMONIC})
+const BASE_DERIVATION_PATH = `44'/60'/0'/0`;
+const mnemonicWalletSubprovider = new MnemonicWalletSubprovider({ mnemonic: MNEMONIC, baseDerivationPath: BASE_DERIVATION_PATH})
 const infuraRpcSubprovider = new RPCSubprovider({
-    rpcUrl: 'https://' + NETWORK + '.infura.io/' + INFURA_KEY
+    rpcUrl: 'https://' + NETWORK + '.infura.io/' + INFURA_KEY,
 })
 
 const providerEngine = new Web3ProviderEngine()
@@ -42,23 +46,24 @@ const seaport = new OpenSeaPort(providerEngine, {
 }, (arg) => console.log(arg))
 
 async function main() {
-    console.log("SUP")
     if (FACTORY_CONTRACT_ADDRESS) {
 
-        // Example: declining Dutch auction.
-        //for (var i = 0; i < NUM_DUTCH_AUCTIONS; i++) {
+        // Example: many declining Dutch auction.
+        for (var i = 0; i < NUM_DUTCH_AUCTIONS; i++) {
             const expirationTime = (Date.now() / 1000 + 60 * 60 * 24)
             const sellOrder = await seaport.createSellOrder({ tokenId: DUTCH_AUCTION_OPTION_ID, tokenAddress: FACTORY_CONTRACT_ADDRESS, accountAddress: OWNER_ADDRESS, 
                 startAmount: DUTCH_AUCTION_START_AMOUNT, endAmount: DUTCH_AUCTION_END_AMOUNT, expirationTime: expirationTime })
             console.log(sellOrder)
-        //}
+        }
 
-        // // Example: incremental prices.
-        // for (var i = 0; i < NUM_INCREMENTS; i++) {
-        //     const sellOrder = await seaport.createSellOrder({ DUTCH_AUCTION_OPTION_ID, FACTORY_CONTRACT_ADDRESS, OWNER_ADDRESS, 
-        //         DUTCH_AUCTION_START_AMOUNT, DUTCH_AUCTION_END_AMOUNT, expirationTime: 0 })
-        //     console.log(offer)
-        // }
+        // Example: many fixed price auctions.
+        for (var i = 0; i < NUM_FIXED_PRICE_AUCTIONS; i++) {
+            const sellOrder = await seaport.createSellOrder({ tokenId: FIXED_PRICE_OPTION_ID, tokenAddress: FACTORY_CONTRACT_ADDRESS, accountAddress: OWNER_ADDRESS, 
+                startAmount: FIXED_PRICE })
+            console.log(sellOrder)
+        }
+
+        // TODO: Incremental prices example.
     }
 }
 
