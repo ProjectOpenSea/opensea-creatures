@@ -1,4 +1,4 @@
-const opensea = require('../../opensea-js')
+const opensea = require('opensea-js')
 const OpenSeaPort = opensea.OpenSeaPort;
 const Network = opensea.Network;
 
@@ -50,7 +50,7 @@ async function main() {
 
         // Example: many declining Dutch auction.
         for (var i = 0; i < NUM_DUTCH_AUCTIONS; i++) {
-            const expirationTime = (Date.now() / 1000 + 60 * 60 * 24)
+            //const expirationTime = ...
             const sellOrder = await seaport.createSellOrder({ tokenId: DUTCH_AUCTION_OPTION_ID, tokenAddress: FACTORY_CONTRACT_ADDRESS, accountAddress: OWNER_ADDRESS, 
                 startAmount: DUTCH_AUCTION_START_AMOUNT, endAmount: DUTCH_AUCTION_END_AMOUNT, expirationTime: expirationTime })
             console.log(sellOrder)
