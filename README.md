@@ -6,9 +6,32 @@ This is a very simple sample ERC721 for the purposes of demonstrating integratio
 
 Additionally, this contract whitelists the proxy accounts of OpenSea users so that they are automatically able to trade the ERC721 item on OpenSea (without having to pay gas for an additional approval). On OpenSea, each user has a "proxy" account that they control, and is ultimately called by the exchange contracts to trade their items. (Note that this addition does not mean that OpenSea itself has access to the items, simply that the users can list them more easily if they wish to do so)
 
+## Requirements
+
 ### Node version
 
 Either make sure you're running a version of node compliant with the `engines` requirement in `package.json`, or install Node Version Manager [`nvm`](https://github.com/creationix/nvm) and run `nvm use` to use the correct version of node.
+
+### Web3.js
+
+Version 0.20.*, the latest stable version, is required. v1 betas don't work. 
+
+## Installation
+
+Run
+```bash
+npm install
+```
+
+If you run into an error while building the dependencies and you're on a Mac, run the code below, remove your `node_modules` folder, and do a fresh `npm install`:
+
+```bash
+xcode-select --install # Install Command Line Tools if you haven't already.
+sudo xcode-select --switch /Library/Developer/CommandLineTools # Enable command line tools
+sudo npm explore npm -g -- npm install node-gyp@latest # Update node-gyp
+```
+
+## Deploying
 
 ### Deploying to the Rinkeby network.
 
