@@ -20,11 +20,6 @@ const FIXED_PRICE_OPTION_ID = "2";
 const NUM_FIXED_PRICE_AUCTIONS = 10;
 const FIXED_PRICE = 100;
 
-const INCLINE_PRICE_START = 10;
-const INCREMENT_AMOUNT = 10;
-const NUM_PER_INCREMENT = 5;
-const NUM_INCREMENTS = 20;
-
 if (!MNEMONIC || !INFURA_KEY || !NETWORK || !OWNER_ADDRESS || !FACTORY_CONTRACT_ADDRESS || !API_KEY) {
     console.error("Please set a mnemonic, infura key, owner, network, API key, and factory contract address.")
     return
@@ -41,7 +36,7 @@ providerEngine.addProvider(infuraRpcSubprovider)
 providerEngine.start();
 
 const seaport = new OpenSeaPort(providerEngine, {
-  networkName: Network.Rinkeby,
+  networkName: NETWORK === 'mainnet' ? Network.Main : Network.Rinkeby,
   apiKey: API_KEY
 }, (arg) => console.log(arg))
 
