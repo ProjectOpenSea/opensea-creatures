@@ -30,7 +30,7 @@ if (!MNEMONIC || !INFURA_KEY || !NETWORK || !OWNER_ADDRESS || !FACTORY_CONTRACT_
 const BASE_DERIVATION_PATH = `44'/60'/0'/0`;
 const mnemonicWalletSubprovider = new MnemonicWalletSubprovider({ mnemonic: MNEMONIC, baseDerivationPath: BASE_DERIVATION_PATH})
 const infuraRpcSubprovider = new RPCSubprovider({
-    rpcUrl: 'https://' + NETWORK + '.infura.io/v3/' + INFURA_KEY,
+    rpcUrl: 'https://' + NETWORK + '.infura.io/' + INFURA_KEY,
 })
 
 const providerEngine = new Web3ProviderEngine()
