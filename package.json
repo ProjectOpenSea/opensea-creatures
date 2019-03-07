@@ -18,22 +18,10 @@
   "homepage": "https://github.com/ProjectOpenSea/erc721-starter-contracts#readme",
   "dependencies": {
     "@0x/subproviders": "^2.1.4",
-    "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^2.0.2",
-    "debug": "3.0.1",
-    "eth-gas-reporter": "^0.1.12",
-    "ethereumjs-abi": "^0.6.5",
-    "keccak": "^1.4.0",
     "opensea-js": "latest",
-    "openzeppelin-solidity": "^1.12.0",
-    "sha256": "^0.2.0",
-    "sha3": "1.2.0",
-    "solc": "^0.4.24",
-    "truffle": "^4.1.14",
-    "truffle-flattener": "^1.2.9",
-    "truffle-hdwallet-provider": "^0.0.7-beta.0",
-    "web3": "1.0.0-beta.34",
-    "web3-provider-engine": "^14.1.0"
+    "openzeppelin-solidity": "^2.1.3",
+    "truffle": "^5.0.7",
+    "truffle-hdwallet-provider": "^1.0.5"
   },
   "engines": {
     "node": "8.11.x",
