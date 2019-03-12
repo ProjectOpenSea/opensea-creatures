@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 /**
  * This is a generic factory contract that can be used to mint tokens. The configuration
@@ -9,34 +9,34 @@ interface Factory {
   /**
    * Returns the name of this factory.
    */
-  function name() external view returns (string);
+  function name() external view returns (string memory);
 
   /**
    * Returns the symbol for this factory.
    */
-  function symbol() external view returns (string);
+  function symbol() external view returns (string memory);
 
   /**
    * Number of options the factory supports.
    */
-  function numOptions() public view returns (uint256);
+  function numOptions() external view returns (uint256);
 
   /**
    * @dev Returns whether the option ID can be minted. Can return false if the developer wishes to
    * restrict a total supply per option ID (or overall).
    */
-  function canMint(uint256 _optionId) public view returns (bool);
+  function canMint(uint256 _optionId) external view returns (bool);
 
   /**
    * @dev Returns a URL specifying some metadata about the option. This metadata can be of the
    * same structure as the ERC721 metadata.
    */
-  function tokenURI(uint256 _optionId) public view returns (string);
+  function tokenURI(uint256 _optionId) external view returns (string memory);
 
   /**
    * Indicates that this is a factory contract. Ideally would use EIP 165 supportsInterface()
    */
-  function supportsFactoryInterface() public view returns (bool);
+  function supportsFactoryInterface() external view returns (bool);
 
   /**
     * @dev Mints asset(s) in accordance to a specific address with a particular "option". This should be 

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.5.0;
 
 import "./TradeableERC721Token.sol";
 import "./Creature.sol";
@@ -15,7 +15,7 @@ contract CreatureLootBox is TradeableERC721Token {
     uint256 OPTION_ID = 0;
     address factoryAddress;
 
-    constructor(address _proxyRegistryAddress, address _factoryAddress) TradeableERC721Token("CreatureLootBox", "PUFFBOX", _proxyRegistryAddress) public {
+    constructor(address _proxyRegistryAddress, address _factoryAddress) TradeableERC721Token("CreatureLootBox", "LOOTBOX", _proxyRegistryAddress) public {
         factoryAddress = _factoryAddress;
     }
 
@@ -33,7 +33,7 @@ contract CreatureLootBox is TradeableERC721Token {
         _burn(msg.sender, _tokenId);
     }
 
-    function baseTokenURI() public view returns (string) {
+    function baseTokenURI() public view returns (string memory) {
         return "https://opensea-creatures-api.herokuapp.com/api/box/";
     }
 

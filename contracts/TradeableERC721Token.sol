@@ -1,6 +1,6 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
-import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Token.sol';
+import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol';
 import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 import './Strings.sol';
 
@@ -14,12 +14,12 @@ contract ProxyRegistry {
  * @title TradeableERC721Token
  * TradeableERC721Token - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
-contract TradeableERC721Token is ERC721Token, Ownable {
+contract TradeableERC721Token is ERC721Full, Ownable {
   using Strings for string;
 
   address proxyRegistryAddress;
 
-  constructor(string _name, string _symbol, address _proxyRegistryAddress) ERC721Token(_name, _symbol) public {
+  constructor(string memory _name, string memory _symbol, address _proxyRegistryAddress) ERC721Full(_name, _symbol) public {
     proxyRegistryAddress = _proxyRegistryAddress;
   }
 
@@ -40,11 +40,11 @@ contract TradeableERC721Token is ERC721Token, Ownable {
     return totalSupply().add(1);
   }
 
-  function baseTokenURI() public view returns (string) {
+  function baseTokenURI() public view returns (string memory) {
     return "";
   }
 
-  function tokenURI(uint256 _tokenId) public view returns (string) {
+  function tokenURI(uint256 _tokenId) external view returns (string memory) {
     return Strings.strConcat(
         baseTokenURI(),
         Strings.uint2str(_tokenId)
@@ -64,7 +64,7 @@ contract TradeableERC721Token is ERC721Token, Ownable {
   {
     // Whitelist OpenSea proxy contract for easy trading.
     ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
-    if (proxyRegistry.proxies(owner) == operator) {
+    if (address(proxyRegistry.proxies(owner)) == operator) {
         return true;
     }
 
