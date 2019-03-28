@@ -18,6 +18,7 @@ const DUTCH_AUCTION_END_AMOUNT = 50;
 const NUM_DUTCH_AUCTIONS = 3;
 
 const FIXED_PRICE_OPTION_ID = "2";
+const FIXED_PRICE_OPTION_IDS = ["3", "4", "5", "6"];
 const NUM_FIXED_PRICE_AUCTIONS = 10;
 const FIXED_PRICE = .05;
 
@@ -59,6 +60,17 @@ async function main() {
         numberOfOrders: NUM_FIXED_PRICE_AUCTIONS
     })
     console.log(`Successfully made ${fixedSellOrders.length} fixed-price sell orders! ${fixedSellOrders[0].asset.openseaLink}\n`)
+
+    // Example: many fixed price auctions for multiple factory options.
+    console.log("Creating fixed price auctions...")
+    const fixedSellOrders = await seaport.createFactorySellOrders({
+        assetIds: FIXED_PRICE_OPTION_IDS,
+        factoryAddress: FACTORY_CONTRACT_ADDRESS,
+        accountAddress: OWNER_ADDRESS,
+        startAmount: FIXED_PRICE,
+        numberOfOrders: NUM_FIXED_PRICE_AUCTIONS
+    })
+    console.log(`Successfully made ${fixedSellOrders.length} fixed-price sell orders for multiple assets at once! ${fixedSellOrders[0].asset.openseaLink}\n`)
 
     // Example: many declining Dutch auction for a factory.
     console.log("Creating dutch auctions...")
