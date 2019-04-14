@@ -12,10 +12,6 @@ Additionally, this contract whitelists the proxy accounts of OpenSea users so th
 
 Either make sure you're running a version of node compliant with the `engines` requirement in `package.json`, or install Node Version Manager [`nvm`](https://github.com/creationix/nvm) and run `nvm use` to use the correct version of node.
 
-### Web3.js
-
-Version 0.20.*, the latest stable version, is required. v1 betas don't work. 
-
 ## Installation
 
 Run
