@@ -20,9 +20,10 @@
     "@0x/subproviders": "^2.1.4",
     "opensea-js": "latest",
     "openzeppelin-solidity": "^2.1.3",
-    "truffle": "^5.0.7",
-    "truffle-hdwallet-provider": "1.0.5",
-    "web3": "^1.0.0-beta.34"
+    "truffle": "^5.0.37",
+    "truffle-flattener": "^1.4.2",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "web3": "1.0.0-beta.34"
   },
   "engines": {
     "node": "8.11.x",
