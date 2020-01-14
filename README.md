@@ -51,4 +51,22 @@ export NETWORK="rinkeby"
 node scripts/mint.js
 ```
 
-Note: When running the minting script on mainnet, your environment variable needs to be set to `mainnet` not `live`.  The environment variable affects the Infura URL in the minting script, not truffle. When you deploy, you're using truffle and you need to give truffle an argument that corresponds to the naming in truffle.js (`--network live`).  But when you mint, you're relying on the environment variable you set to build the URL (https://github.com/ProjectOpenSea/opensea-creatures/blob/master/scripts/mint.js#L54), so you need to use the term that makes Infura happy (`mainnet`).  Truffle and Infura use the same terminology for Rinkeby, but different terminology for mainnet.  If you start your minting script, but nothing happens, double check your environment variables.
+### Diagnosing Common Issues
+
+When running the minting script on mainnet, your environment variable needs to be set to `mainnet` not `live`.  The environment variable affects the Infura URL in the minting script, not truffle. When you deploy, you're using truffle and you need to give truffle an argument that corresponds to the naming in truffle.js (`--network live`).  But when you mint, you're relying on the environment variable you set to build the URL (https://github.com/ProjectOpenSea/opensea-creatures/blob/master/scripts/mint.js#L54), so you need to use the term that makes Infura happy (`mainnet`).  Truffle and Infura use the same terminology for Rinkeby, but different terminology for mainnet.  If you start your minting script, but nothing happens, double check your environment variables.
+
+If you're running a modified version of `sell.js` and not getting expected behavior, check the following:
+
+* Is the `expirationTime` in future?  If no, change it to a time in the future.
+
+* Is the `expirationTime` a fractional second?  If yes, round the listing time to the nearest second.
+
+* Are the input addresses all strings? If no, convert them to strings.
+
+* Are the input addresses checksummed?  You might need to use the checksummed version of the address.
+
+* Is your computer's internal clock accurate? If no, try enabling automatic clock adjustment locally or following [this tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html) to update an Amazon EC2 instance.
+
+* Do you have any conflicts that result from globally installed node packages?  If yes, try `npm uninstall -g truffle; npm install -g truffle@5.0.37`
+
+* Are you running a version of node compliant with the `engines` requirement in `package.json`?  If no, try `nvm use 8.11.2; rm -rf node_modules; npm i`
