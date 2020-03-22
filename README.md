@@ -35,7 +35,7 @@ sudo npm explore npm -g -- npm install node-gyp@latest # Update node-gyp
 2. Using your API key and the mnemonic for your Metamask wallet (make sure you're using a Metamask seed phrase that you're comfortable using for testing purposes), run:
 
 ```
-export INFURA_KEY="<infura_key>"
+export INFURA_KEY="<your_infura_project_id>"
 export MNEMONIC="<metmask_mnemonic>"
 truffle deploy --network rinkeby
 ```
