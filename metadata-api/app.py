@@ -22,10 +22,10 @@ MOUTH = ['happy', 'surprised', 'pleased', 'cute']
 INT_ATTRIBUTES = [5, 2, 3, 4, 8]
 FLOAT_ATTRIBUTES = [1.4, 2.3, 11.7, 90.2, 1.2]
 STR_ATTRIBUTES = [
-    'happy',
-    'sad',
-    'sleepy',
-    'boring'
+    'Happy',
+    'Sad',
+    'Sleepy',
+    'Boring'
 ]
 BOOST_ATTRIBUTES = [10, 40, 30]
 PERCENT_BOOST_ATTRIBUTES = [5, 10, 15]
@@ -48,15 +48,15 @@ def creature(token_id):
                                token_id)
 
     attributes = []
-    _add_attribute(attributes, 'base', BASES, token_id)
-    _add_attribute(attributes, 'eyes', EYES, token_id)
-    _add_attribute(attributes, 'mouth', MOUTH, token_id)
-    _add_attribute(attributes, 'level', INT_ATTRIBUTES, token_id)
-    _add_attribute(attributes, 'stamina', FLOAT_ATTRIBUTES, token_id)
-    _add_attribute(attributes, 'personality', STR_ATTRIBUTES, token_id)
-    _add_attribute(attributes, 'aqua_power', BOOST_ATTRIBUTES, token_id, display_type="boost_number")
-    _add_attribute(attributes, 'stamina_increase', PERCENT_BOOST_ATTRIBUTES, token_id, display_type="boost_percentage")
-    _add_attribute(attributes, 'generation', NUMBER_ATTRIBUTES, token_id, display_type="number")
+    _add_attribute(attributes, 'Base', BASES, token_id)
+    _add_attribute(attributes, 'Eyes', EYES, token_id)
+    _add_attribute(attributes, 'Mouth', MOUTH, token_id)
+    _add_attribute(attributes, 'Level', INT_ATTRIBUTES, token_id)
+    _add_attribute(attributes, 'Stamina', FLOAT_ATTRIBUTES, token_id)
+    _add_attribute(attributes, 'Personality', STR_ATTRIBUTES, token_id)
+    _add_attribute(attributes, 'Aqua Power', BOOST_ATTRIBUTES, token_id, display_type="boost_number")
+    _add_attribute(attributes, 'Stamina Increase', PERCENT_BOOST_ATTRIBUTES, token_id, display_type="boost_percentage")
+    _add_attribute(attributes, 'Generation', NUMBER_ATTRIBUTES, token_id, display_type="number")
 
 
     return jsonify({
