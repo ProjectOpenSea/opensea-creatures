@@ -54,12 +54,12 @@ ACCESSORIES_ATTS_INT = [200, 11, 3, 41, 9, 172]
 ACCESSORIES_ATTS_PERCENT = [5, 10, 1, 20, 15, 25]
 ACCESSORIES_ATTS_LOCATION = ['head', 'body', 'held', 'held', 'head', 'held']
 ACCESSORIES_ATTS_RARITY = [
-    'common',
-    'common',
-    'rare',
-    'very-rare',
-    'very-common',
-    'rare'
+    'Common',
+    'Common',
+    'Rare',
+    'Legendary',
+    'Epic',
+    'Divine'
 ]
 ACCESSORIES_ATTS_DEPTH = [
     'beach',
