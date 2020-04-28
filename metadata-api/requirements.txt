@@ -48,7 +48,7 @@ Pygments==2.2.0
 pylru==1.0.9
 pysha3==1.0.2
 pytz==2017.2
-PyYAML==3.12
+PyYAML==5.1
 pyzmq==16.0.2
 repoze.lru==0.6
 requests==2.18.4
