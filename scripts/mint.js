@@ -78,6 +78,8 @@ async function main() {
             const result = await factoryContract.methods.mint(LOOTBOX_OPTION_ID, OWNER_ADDRESS).send({ from: OWNER_ADDRESS });
             console.log("Minted lootbox. Transaction: " + result.transactionHash)
         }
+    } else {
+      console.error('Add NFT_CONTRACT_ADDRESS or FACTORY_CONTRACT_ADDRESS to the environmental variables')
     }
 }
 
