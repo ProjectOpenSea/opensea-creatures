@@ -52,7 +52,7 @@ const seaport = new OpenSeaPort(providerEngine, {
 async function main() {
     // Example: many fixed price auctions for a factory option.
     console.log("Creating fixed price auctions...")
-    const fixedSellOrders = await seaport.createFactorySellOrders({
+    let fixedSellOrders = await seaport.createFactorySellOrders({
         assetId: FIXED_PRICE_OPTION_ID,
         factoryAddress: FACTORY_CONTRACT_ADDRESS,
         accountAddress: OWNER_ADDRESS,
@@ -63,7 +63,7 @@ async function main() {
 
     // Example: many fixed price auctions for multiple factory options.
     console.log("Creating fixed price auctions...")
-    const fixedSellOrders = await seaport.createFactorySellOrders({
+    fixedSellOrders = await seaport.createFactorySellOrders({
         assetIds: FIXED_PRICE_OPTION_IDS,
         factoryAddress: FACTORY_CONTRACT_ADDRESS,
         accountAddress: OWNER_ADDRESS,
