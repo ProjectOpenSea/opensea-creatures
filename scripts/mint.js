@@ -79,7 +79,7 @@ async function main() {
             console.log("Minted lootbox. Transaction: " + result.transactionHash)
         }
     } else {
-      console.error('Add NFT_CONTRACT_ADDRESS or FACTORY_CONTRACT_ADDRESS to the environmental variables')
+      console.error('Add NFT_CONTRACT_ADDRESS or FACTORY_CONTRACT_ADDRESS to your environmental variables')
     }
 }
 
