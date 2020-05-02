@@ -265,7 +265,7 @@ def accessory_factory(token_id):
 
 # contractURI()
 
-@app.route('/contract/uri/<contract_name>')
+@app.route('/contract/<contract_name>')
 def contract_uri(contract_name):
     if not contract_name in CONTRACT_URI_METADATA_AVAILABLE:
         abort(404, description='Resource not found')
