@@ -13,4 +13,8 @@ contract Creature is TradeableERC721Token {
   function baseTokenURI() public view returns (string memory) {
     return "https://opensea-creatures-api.herokuapp.com/api/creature/";
   }
+
+  function contractURI() public view returns (string memory) {
+    return "https://opensea-creatures-api.herokuapp.com/contract/opensea-creatures";
+  }
 }
