@@ -18,7 +18,6 @@ const DUTCH_AUCTION_END_AMOUNT = 50;
 const NUM_DUTCH_AUCTIONS = 3;
 
 const FIXED_PRICE_OPTION_ID = "2";
-const FIXED_PRICE_OPTION_IDS = ["3", "4", "5", "6"];
 const NUM_FIXED_PRICE_AUCTIONS = 10;
 const FIXED_PRICE = .05;
 
@@ -53,8 +52,10 @@ async function main() {
     // Example: many fixed price auctions for a factory option.
     console.log("Creating fixed price auctions...")
     const fixedSellOrders = await seaport.createFactorySellOrders({
-        assetId: FIXED_PRICE_OPTION_ID,
-        factoryAddress: FACTORY_CONTRACT_ADDRESS,
+        assets: [{
+            assetId: FIXED_PRICE_OPTION_ID,
+            tokenAddress: FACTORY_CONTRACT_ADDRESS,
+        }],
         accountAddress: OWNER_ADDRESS,
         startAmount: FIXED_PRICE,
         numberOfOrders: NUM_FIXED_PRICE_AUCTIONS
@@ -64,7 +65,12 @@ async function main() {
     // Example: many fixed price auctions for multiple factory options.
     console.log("Creating fixed price auctions...")
     const fixedSellOrders = await seaport.createFactorySellOrders({
-        assetIds: FIXED_PRICE_OPTION_IDS,
+        assets: [
+            {assetId: "3", tokenAddress: FACTORY_CONTRACT_ADDRESS},
+            {assetId: "4", tokenAddress: FACTORY_CONTRACT_ADDRESS},
+            {assetId: "5", tokenAddress: FACTORY_CONTRACT_ADDRESS},
+            {assetId: "6", tokenAddress: FACTORY_CONTRACT_ADDRESS}
+        ],
         factoryAddress: FACTORY_CONTRACT_ADDRESS,
         accountAddress: OWNER_ADDRESS,
         startAmount: FIXED_PRICE,
@@ -78,8 +84,10 @@ async function main() {
     // Expire one day from now
     const expirationTime = Math.round(Date.now() / 1000 + 60 * 60 * 24)
     const dutchSellOrders = await seaport.createFactorySellOrders({
-        assetId: DUTCH_AUCTION_OPTION_ID,
-        factoryAddress: FACTORY_CONTRACT_ADDRESS,
+        assets: [{
+            assetId: DUTCH_AUCTION_OPTION_ID,
+            tokenAddress: FACTORY_CONTRACT_ADDRESS,
+        }],
         accountAddress: OWNER_ADDRESS, 
         startAmount: DUTCH_AUCTION_START_AMOUNT,
         endAmount: DUTCH_AUCTION_END_AMOUNT,
