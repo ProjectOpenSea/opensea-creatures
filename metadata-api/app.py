@@ -52,7 +52,7 @@ ACCESSORIES_NAMES = [a.replace('-', ' ').replace('.png', '')
                      for a in ACCESSORIES_IMAGES]
 ACCESSORIES_ATTS_INT = [200, 11, 3, 41, 9, 172]
 ACCESSORIES_ATTS_PERCENT = [5, 10, 1, 20, 15, 25]
-ACCESSORIES_ATTS_LOCATION = ['head', 'body', 'held', 'held', 'head', 'held']
+ACCESSORIES_ATTS_LOCATION = ['Head', 'Body', 'Held', 'Held', 'Head', 'Held']
 ACCESSORIES_ATTS_RARITY = [
     'Common',
     'Rare',
@@ -79,13 +79,13 @@ CONTRACT_URI_METADATA = {
         'name': 'OpenSea Creatures',
         'description': 'Friendly creatures of the sea.',
         'image': 'https://example.com/image.png',
-        'external_link': 'https://openseacreatures.io'
+        'external_link': 'https://github.com/ProjectOpenSea/opensea-creatures/'
     },
     'opensea-erc1155': {
-        'name': 'OpenSea ERC1155',
-        'description': "OpenSea's ERC1155 contract.",
+        'name': 'OpenSea Creature Accessories',
+        'description': "Fun and useful accessories for your OpenSea creatures.",
         'image': 'https://example.com/image.png',
-        'external_link': 'https://github.com/ProjectOpenSea/opensea-erc1155/issues'
+        'external_link': 'https://github.com/ProjectOpenSea/opensea-erc1155/'
     }
 }
 CONTRACT_URI_METADATA_AVAILABLE = CONTRACT_URI_METADATA.keys()
@@ -224,7 +224,7 @@ def accessory_box(token_id):
         'name': 'Accessory Loot Box',
         'description': 'This lootbox contains some OpenSea Creature accessories! It can also be traded!',
         'image': image_url,
-        'external_url': 'https://openseacreatures.io/accessory/%s' % token_id,
+        'external_url': 'https://openseacreatures.io/box/accessory/%s' % token_id,
         'attributes': attributes
     })
 
