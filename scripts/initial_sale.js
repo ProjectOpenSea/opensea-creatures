@@ -1,6 +1,6 @@
 const opensea = require('opensea-js')
-const OpenSeaPort = opensea.OpenSeaPort;
-const Network = opensea.Network;
+const OpenSeaPort = opensea.OpenSeaPort
+const Network = opensea.Network
 const MnemonicWalletSubprovider = require('@0x/subproviders').MnemonicWalletSubprovider
 const RPCSubprovider = require('web3-provider-engine/subproviders/rpc')
 const Web3ProviderEngine = require('web3-provider-engine')
@@ -12,14 +12,14 @@ const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
 const API_KEY = process.env.API_KEY || "" // API key is optional but useful if you're doing a high volume of requests.
 
-const DUTCH_AUCTION_OPTION_ID = "1";
-const DUTCH_AUCTION_START_AMOUNT = 100;
-const DUTCH_AUCTION_END_AMOUNT = 50;
-const NUM_DUTCH_AUCTIONS = 3;
+const DUTCH_AUCTION_OPTION_ID = "1"
+const DUTCH_AUCTION_START_AMOUNT = 100
+const DUTCH_AUCTION_END_AMOUNT = 50
+const NUM_DUTCH_AUCTIONS = 3
 
-const FIXED_PRICE_OPTION_ID = "2";
-const NUM_FIXED_PRICE_AUCTIONS = 10;
-const FIXED_PRICE = .05;
+const FIXED_PRICE_OPTION_ID = "2"
+const NUM_FIXED_PRICE_AUCTIONS = 10
+const FIXED_PRICE = .05
 
 if (!MNEMONIC || !INFURA_KEY || !NETWORK || !OWNER_ADDRESS) {
     console.error("Please set a mnemonic, infura key, owner, network, API key, nft contract, and factory contract address.")
@@ -41,7 +41,7 @@ const infuraRpcSubprovider = new RPCSubprovider({
 const providerEngine = new Web3ProviderEngine()
 providerEngine.addProvider(mnemonicWalletSubprovider)
 providerEngine.addProvider(infuraRpcSubprovider)
-providerEngine.start();
+providerEngine.start()
 
 const seaport = new OpenSeaPort(providerEngine, {
     networkName: NETWORK === 'mainnet' ? Network.Main : Network.Rinkeby,
