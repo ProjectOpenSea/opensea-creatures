@@ -1,6 +1,6 @@
 const opensea = require('opensea-js')
-const OpenSeaPort = opensea.OpenSeaPort;
-const Network = opensea.Network;
+const OpenSeaPort = opensea.OpenSeaPort
+const Network = opensea.Network
 const MnemonicWalletSubprovider = require('@0x/subproviders').MnemonicWalletSubprovider
 const RPCSubprovider = require('web3-provider-engine/subproviders/rpc')
 const Web3ProviderEngine = require('web3-provider-engine')
@@ -33,7 +33,7 @@ const infuraRpcSubprovider = new RPCSubprovider({
 const providerEngine = new Web3ProviderEngine()
 providerEngine.addProvider(mnemonicWalletSubprovider)
 providerEngine.addProvider(infuraRpcSubprovider)
-providerEngine.start();
+providerEngine.start()
 
 const seaport = new OpenSeaPort(providerEngine, {
     networkName: NETWORK === 'mainnet' ? Network.Main : Network.Rinkeby,

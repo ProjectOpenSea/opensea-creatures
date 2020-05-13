@@ -1,4 +1,4 @@
-const HDWalletProvider = require("truffle-hdwallet-provider");
+const HDWalletProvider = require("truffle-hdwallet-provider")
 const MNEMONIC = process.env.MNEMONIC
 const INFURA_KEY = process.env.INFURA_KEY
 
@@ -20,7 +20,7 @@ module.exports = {
         return new HDWalletProvider(
           MNEMONIC,
           "https://rinkeby.infura.io/v3/" + INFURA_KEY
-        );
+        )
       },
       network_id: "*",
       gas: 4000000
@@ -31,7 +31,7 @@ module.exports = {
         return new HDWalletProvider(
           MNEMONIC,
           "https://mainnet.infura.io/v3/" + INFURA_KEY
-        );
+        )
       },
       gas: 4000000,
       gasPrice: 5000000000
@@ -49,4 +49,4 @@ module.exports = {
       version: "^0.5.0"
     }
   }
-};
+}
