@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./TradeableERC721Token.sol";
+import "./ERC721Tradable.sol";
 import "./Creature.sol";
 import "./Factory.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -10,12 +10,12 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  *
  * CreatureLootBox - a tradeable loot box of Creatures.
  */
-contract CreatureLootBox is TradeableERC721Token {
+contract CreatureLootBox is ERC721Tradable {
     uint256 NUM_CREATURES_PER_BOX = 3;
     uint256 OPTION_ID = 0;
     address factoryAddress;
 
-    constructor(address _proxyRegistryAddress, address _factoryAddress) TradeableERC721Token("CreatureLootBox", "LOOTBOX", _proxyRegistryAddress) public {
+    constructor(address _proxyRegistryAddress, address _factoryAddress) ERC721Tradable("CreatureLootBox", "LOOTBOX", _proxyRegistryAddress) public {
         factoryAddress = _factoryAddress;
     }
 
