@@ -2,10 +2,7 @@ pragma solidity ^0.5.11;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
-//FIXME: ERC-721 Factory and ERC-1155 IFactory have clashing definitions of
-// mint(), so we do *not* implement Factory as otherwise we'd need the two-param
-// version of mint(). 
-//import "./Factory.sol";
+import "./IFactory.sol";
 import "./CreatureAccessory.sol";
 import "./Strings.sol";
 
@@ -14,7 +11,7 @@ import "./Strings.sol";
  * CreatureAccessory - a factory contract for Creature Accessory semi-fungible
  * tokens.
  */
-contract CreatureAccessoryFactory is /*Factory,*/ Ownable, ReentrancyGuard {
+contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
   using Strings for string;
   using SafeMath for uint256;
 
@@ -30,7 +27,7 @@ contract CreatureAccessoryFactory is /*Factory,*/ Ownable, ReentrancyGuard {
   uint256 constant SUPPLY_PER_TOKEN_ID = UINT256_MAX;
 
   /**
-   * Three different options for minting CreatureAccessorys (basic, premium, and gold).
+   * Three different options for minting CreatureAccessories (basic, premium, and gold).
    */
   enum Option {
     Basic,

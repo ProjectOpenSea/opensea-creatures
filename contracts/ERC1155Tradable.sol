@@ -58,7 +58,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
   function uri(
     uint256 _id
   ) public view returns (string memory) {
-    require(_exists(_id), "ERC721Tradable#uri: NONEXISTENT_TOKEN");
+    require(_exists(_id), "ERC1155Tradable#uri: NONEXISTENT_TOKEN");
     return Strings.strConcat(
       baseMetadataURI,
       Strings.uint2str(_id)
@@ -98,9 +98,9 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
   function create(
     address _initialOwner,
     uint256 _initialSupply,
-    string calldata _uri,
-    bytes calldata _data
-  ) external onlyOwner returns (uint256) {
+    string memory _uri,
+    bytes memory _data
+  ) public onlyOwner returns (uint256) {
 
     uint256 _id = _getNextTokenID();
     _incrementTokenTypeId();

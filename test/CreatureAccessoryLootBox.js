@@ -9,6 +9,10 @@ const vals = require('../lib/testValuesCommon.js');
 const MockProxyRegistry = artifacts.require(
   "../contracts/MockProxyRegistry.sol"
 );
+
+const LootBoxRandomness = artifacts.require(
+  "../contracts/LootBoxRandomness.sol"
+);
 const CreatureAccessoryLootBox = artifacts.require(
   "../contracts/CreatureAccessoryLootBox.sol"
 );
@@ -40,17 +44,6 @@ const TRANSFER_SINGLE_SIG = web3.eth.abi.encodeEventSignature({
   inputs: TRANSFER_SINGLE_FIELDS
 });
 
-// Check the option settings to make sure the values in the smart contract
-// match the expected ones.
-
-const checkOption = async (
-  lootBox, index, maxQuantityPerOpen, hasGuaranteedClasses
-) => {
-  const option = await lootBox.optionToSettings(index);
-  assert.isOk(option.maxQuantityPerOpen.eq(toBN(maxQuantityPerOpen)));
-  assert.equal(option.hasGuaranteedClasses, hasGuaranteedClasses);
-};
-
 // Total the number of tokens in the transaction's emitted TransferSingle events
 // Keep a total for each token id number (1:..2:..)
 // and a total for *all* tokens as total:.
@@ -71,17 +64,19 @@ const totalEventTokens = (receipt, recipient) => {
         // Exclude event signature hash from topics that we process here.
         raw.topics.slice(1)
       );
-      // Make sure the correct recipient got the tokens.
-      assert.equal(parsed._to, recipient);
-      // Keep a running total for each token id.
-      const id = parsed._id;
-      if (! totals[id]) {
-        totals[id] = toBN(0);
+      // Make sure the address that we are watching got the tokens.
+      // Burnt tokens go to address zero, for example
+      if (parsed._to == recipient) {
+        // Keep a running total for each token id.
+        const id = parsed._id;
+        if (! totals[id]) {
+          totals[id] = toBN(0);
+        }
+        const amount = toBN(parsed._amount);
+        totals[id] = totals[id].add(amount);
+        // Keep a running total for all token ids.
+        totals.total = totals.total.add(amount);
       }
-      const amount = toBN(parsed._amount);
-      totals[id] = totals[id].add(amount);
-      // Keep a running total for all token ids.
-      totals.total = totals.total.add(amount);
     }
   }
   return totals;
@@ -109,7 +104,7 @@ const compareTokenTotals = (totals, spec, option) => {
 /* Tests */
 
 contract("CreatureAccessoryLootBox", (accounts) => {
-  // As set in (or inferred from) the contract
+  const NUM_CLASSES = 6;
   const BASIC = toBN(0);
   const PREMIUM = toBN(1);
   const GOLD = toBN(2);
@@ -136,26 +131,34 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     proxy = await MockProxyRegistry.new();
     await proxy.setProxy(owner, proxyForOwner);
     creatureAccessory = await CreatureAccessory.new(proxy.address);
-    lootBox = await CreatureAccessoryLootBox.new(
-      proxy.address,
-      creatureAccessory.address
-    );
+    CreatureAccessoryLootBox.link(LootBoxRandomness);
+    lootBox = await CreatureAccessoryLootBox.new(proxy.address);
     await creatureAccessory.transferOwnership(lootBox.address);
-  });
-
-  // This also tests the proxyRegistryAddress and nftAddress accessors.
-
-  describe('#constructor()', () => {
-    it('should set proxyRegistryAddress to the supplied value', async () => {
-      assert.equal(await lootBox.proxyRegistryAddress(), proxy.address);
-      assert.equal(await lootBox.nftAddress(), creatureAccessory.address);
-    });
-
-    it('should set options to values in constructor', async () => {
-      await checkOption(lootBox, BASIC, 3, false);
-      await checkOption(lootBox, PREMIUM, 5, true);
-      await checkOption(lootBox, GOLD, 7, true);
-    });
+    // Manually configure this state as we have manually deployed.
+    await lootBox.setState(
+      creatureAccessory.address,
+      NUM_OPTIONS,
+      NUM_CLASSES,
+      1337
+    );
+    await lootBox.setOptionSettings(
+      BASIC,
+      3,
+      [7300, 2100, 400, 100, 50, 50],
+      [0, 0, 0, 0, 0, 0]
+    );
+    await lootBox.setOptionSettings(
+      PREMIUM,
+      5,
+      [7300, 2100, 400, 100, 50, 50],
+      [3, 0, 0, 0, 0, 0]
+    );
+    await lootBox.setOptionSettings(
+      GOLD,
+      7,
+      [7300, 2100, 400, 100, 50, 50],
+      [3, 0, 2, 0, 1, 0]
+    );
   });
 
   // Calls _mint()
@@ -174,16 +177,14 @@ contract("CreatureAccessoryLootBox", (accounts) => {
       );
       truffleAssert.eventEmitted(
         receipt,
-        'LootBoxOpened',
+        'TransferSingle',
         {
-          boxesPurchased: amount,
-          optionId: option,
-          buyer: userB,
-          itemsMinted: OPTIONS_AMOUNTS[option]
+          _from: vals.ADDRESS_ZERO,
+          _to: userB,
+          //_id: option.add(toBN(1)),
+          _amount: amount
         }
       );
-      const totals = totalEventTokens(receipt, userB);
-      assert.ok(totals.total.eq(OPTIONS_AMOUNTS[option]));
     });
 
     it('should work for proxy', async () => {
@@ -199,16 +200,14 @@ contract("CreatureAccessoryLootBox", (accounts) => {
       );
       truffleAssert.eventEmitted(
         receipt,
-        'LootBoxOpened',
+        'TransferSingle',
         {
-          boxesPurchased: amount,
-          optionId: option,
-          buyer: userB,
-          itemsMinted: OPTIONS_AMOUNTS[option]
+          _from: vals.ADDRESS_ZERO,
+          _to: userB,
+          //_id: option.add(toBN(1)),
+          _amount: amount
         }
       );
-      const totals = totalEventTokens(receipt, userB);
-      assert.ok(totals.total.eq(OPTIONS_AMOUNTS[option]));
     });
 
     it('should not be callable by non-owner() and non-proxy', async () => {
@@ -223,7 +222,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
           { from: userB }
         ),
         truffleAssert.ErrorType.REVERT,
-        'CreatureAccessoryLootBox#_mint: CANNOT_MINT'
+        'Lootbox: owner or proxy only'
       );
     });
 
@@ -238,22 +237,25 @@ contract("CreatureAccessoryLootBox", (accounts) => {
           "0x0",
           { from: owner }
         ),
-        // The bad Option cast gives an invalid opcode exception.
-        truffleAssert.ErrorType.INVALID_OPCODE
+        truffleAssert.ErrorType.REVERT,
+        'Lootbox: Invalid Option'
       );
     });
+  });
 
+  describe('#open()', () => {
     it('should mint guaranteed class amounts for each option', async () => {
-      for (let i = 0; i < NUM_OPTIONS; i++) {
+      // We transferred one of each in previous tests.
+      //for (let i = 0; i < NUM_OPTIONS; i++)
+      i = 0;
+      {
         const option = OPTIONS[i];
         const amount = toBN(1);
-        const receipt = await lootBox.safeTransferFrom(
-          vals.ADDRESS_ZERO,
-          userB,
+        const receipt = await lootBox.open(
           option,
+          userB,
           amount,
-          "0x0",
-          { from: owner }
+          { from: userB }
         );
         truffleAssert.eventEmitted(
           receipt,
