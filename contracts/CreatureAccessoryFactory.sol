@@ -3,7 +3,7 @@ pragma solidity ^0.5.11;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "./IFactory.sol";
-import "./CreatureAccessory.sol";
+import "./CreatureAccessoryLootBox.sol";
 import "./Strings.sol";
 
 /**
@@ -16,7 +16,7 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
   using SafeMath for uint256;
 
   address public proxyRegistryAddress;
-  address public nftAddress;
+  address public lootBoxAddress;
   string constant internal baseMetadataURI = "https://creatures-api.opensea.io/api/";
   uint256 constant UINT256_MAX = ~uint256(0);
 
@@ -35,11 +35,10 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
     Gold
   }
   uint256 constant NUM_OPTIONS = 3;
-  mapping (uint256 => uint256) public optionToTokenID;
 
-  constructor(address _proxyRegistryAddress, address _nftAddress) public {
+  constructor(address _proxyRegistryAddress, address _lootBoxAddress) public {
     proxyRegistryAddress = _proxyRegistryAddress;
-    nftAddress = _nftAddress;
+    lootBoxAddress = _lootBoxAddress;
   }
 
   /////
@@ -84,6 +83,7 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
 
   /**
    * @dev Main minting logic implemented here!
+     NOTE: We *only* mint lootboxes.
    */
   function _mint(
     Option _option,
@@ -93,14 +93,8 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
   ) internal {
     require(_canMint(msg.sender, _option, _amount), "CreatureAccessoryFactory#_mint: CANNOT_MINT_MORE");
     uint256 optionId = uint256(_option);
-    CreatureAccessory nftContract = CreatureAccessory(nftAddress);
-    uint256 id = optionToTokenID[optionId];
-    if (id == 0) {
-      id = nftContract.create(_toAddress, _amount, "", _data);
-      optionToTokenID[optionId] = id;
-    } else {
-      nftContract.mint(_toAddress, id, _amount, _data);
-    }
+    CreatureAccessoryLootBox lootBox = CreatureAccessoryLootBox(lootBoxAddress);
+    lootBox.mintForOption(_toAddress, optionId, _amount, _data);
   }
 
   /**
@@ -116,14 +110,10 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
       // Only the factory owner or owner's proxy can have supply
       return 0;
     }
-    uint256 id = optionToTokenID[_optionId];
-    if (id == 0) {
-      // Haven't minted yet
-      return SUPPLY_PER_TOKEN_ID;
-    }
-
-    CreatureAccessory nftContract = CreatureAccessory(nftAddress);
-    uint256 currentSupply = nftContract.totalSupply(id);
+    // Token IDs start at 1, option IDs start at 0.
+    uint256 tokenId = _optionId + 1;
+    CreatureAccessoryLootBox lootBox = CreatureAccessoryLootBox(lootBoxAddress);
+    uint256 currentSupply = lootBox.totalSupply(tokenId);
     return SUPPLY_PER_TOKEN_ID.sub(currentSupply);
   }
 

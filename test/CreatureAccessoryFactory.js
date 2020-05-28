@@ -4,13 +4,18 @@ const truffleAssert = require('truffle-assertions');
 
 const vals = require('../lib/testValuesCommon.js');
 
+
 /* Contracts in this test */
 
 const MockProxyRegistry = artifacts.require(
   "../contracts/MockProxyRegistry.sol"
 );
-const CreatureAccessoryFactory = artifacts.require("../contracts/CreatureAccessoryFactory.sol");
 const CreatureAccessory = artifacts.require("../contracts/CreatureAccessory.sol");
+const CreatureAccessoryFactory = artifacts.require("../contracts/CreatureAccessoryFactory.sol");
+const CreatureAccessoryLootBox = artifacts.require("../contracts/CreatureAccessoryLootBox.sol");
+const LootBoxRandomness = artifacts.require(
+  "../contracts/LootBoxRandomness.sol"
+);
 const TestForReentrancyAttack = artifacts.require(
   "../contracts/TestForReentrancyAttack.sol"
 );
@@ -21,24 +26,16 @@ const TestForReentrancyAttack = artifacts.require(
 const toBN = web3.utils.toBN;
 
 
-/* NOTE:
-   * We rely on the accident of collectible token IDs starting at 1, and mint
-     our PREMIUM token first to make option ID match token ID for PREMIUM and
-     GOLD.
-   * We never mint BASIC tokens, as there is no zero token ID in the
-     collectible.
-   * For testing paths that must work if no token has been minted, use BASIC.
-   * We mint PREMIUM and GOLD while testing mint().
-   * Therefore any tests that must work with and without tokens minted, use
-     BASIC for unminted and PREMIUM for minted, *after* mint() is tested.
-   * Do not test transferFrom() with BASIC as that would create the token as 3.
-     transferFrom() uses _create, which is tested in create(), so this is fine.
-*/
+/* Utilities */
+
+const toTokenId = optionId => optionId + 1;
+
 
 contract("CreatureAccessoryFactory", (accounts) => {
-  // As set in (or inferred from) the contract
+  // As set in (or inferred from) the contracts
+  const NUM_CLASSES = 6;
   const BASIC = 0;
-  const PREMIUM =1;
+  const PREMIUM = 1;
   const GOLD = 2;
   const NUM_OPTIONS = 3;
   const NO_SUCH_OPTION = NUM_OPTIONS + 10;
@@ -48,8 +45,9 @@ contract("CreatureAccessoryFactory", (accounts) => {
   const userB = accounts[2];
   const proxyForOwner = accounts[8];
 
+  let creatureAccessory;
   let myFactory;
-  let myCollectible;
+  let myLootBox;
   let attacker;
   let proxy;
 
@@ -60,22 +58,49 @@ contract("CreatureAccessoryFactory", (accounts) => {
   before(async () => {
     proxy = await MockProxyRegistry.new();
     await proxy.setProxy(owner, proxyForOwner);
-    myCollectible = await CreatureAccessory.new(proxy.address);
+    creatureAccessory = await CreatureAccessory.new(proxy.address);
+    CreatureAccessoryLootBox.link(LootBoxRandomness);
+    myLootBox = await CreatureAccessoryLootBox.new(proxy.address);
     myFactory = await CreatureAccessoryFactory.new(
       proxy.address,
-      myCollectible.address);
-    await myCollectible.transferOwnership(myFactory.address);
-    //await myCollectible.setFactoryAddress(myFactory.address);
+      myLootBox.address);
+    await creatureAccessory.transferOwnership(myLootBox.address);
+    // Manually configure this state as we have manually deployed.
+    await myLootBox.setState(
+      creatureAccessory.address,
+      NUM_OPTIONS,
+      NUM_CLASSES,
+      1337
+    );
+    await myLootBox.setOptionSettings(
+      BASIC,
+      3,
+      [7300, 2100, 400, 100, 50, 50],
+      [0, 0, 0, 0, 0, 0]
+    );
+    await myLootBox.setOptionSettings(
+      PREMIUM,
+      5,
+      [7300, 2100, 400, 100, 50, 50],
+      [3, 0, 0, 0, 0, 0]
+    );
+    await myLootBox.setOptionSettings(
+      GOLD,
+      7,
+      [7300, 2100, 400, 100, 50, 50],
+      [3, 0, 2, 0, 1, 0]
+    );
+    await myLootBox.transferOwnership(myFactory.address);
     attacker = await TestForReentrancyAttack.new();
     await attacker.setFactoryAddress(myFactory.address);
   });
 
-  // This also tests the proxyRegistryAddress and nftAddress accessors.
+  // This also tests the proxyRegistryAddress and lootBoxAddress accessors.
 
   describe('#constructor()', () => {
     it('should set proxyRegistryAddress to the supplied value', async () => {
       assert.equal(await myFactory.proxyRegistryAddress(), proxy.address);
-      assert.equal(await myFactory.nftAddress(), myCollectible.address);
+      assert.equal(await myFactory.lootBoxAddress(), myLootBox.address);
     });
   });
 
@@ -128,36 +153,15 @@ contract("CreatureAccessoryFactory", (accounts) => {
       const quantity = toBN(1000);
       await myFactory.mint(PREMIUM, userA, quantity, "0x0", { from: owner });
       // Check that the recipient got the correct quantity
-      const balanceUserA = await myCollectible.balanceOf(userA, PREMIUM);
+      // Token numbers are one higher than option numbers
+      const balanceUserA = await myLootBox.balanceOf(userA, toTokenId(PREMIUM));
       assert.isOk(balanceUserA.eq(quantity));
       // Check that balance is correct
       const balanceOf = await myFactory.balanceOf(owner, PREMIUM);
       assert.isOk(balanceOf.eq(vals.MAX_UINT256_BN.sub(quantity)));
       // Check that total supply is correct
-      const totalSupply = await myCollectible.totalSupply(PREMIUM);
+      const totalSupply = await myLootBox.totalSupply(toTokenId(PREMIUM));
       assert.isOk(totalSupply.eq(quantity));
-    });
-
-    it('should successfully use both create or mint internally', async () => {
-      const quantity = toBN(1000);
-      const total = quantity.mul(toBN(2));
-      // It would be nice to check the logs from these, but:
-      // https://ethereum.stackexchange.com/questions/71785/how-to-test-events-that-were-sent-by-inner-transaction-delegate-call
-      // Will use create.
-      await myFactory.mint(GOLD, userA, quantity, "0x0", { from: owner });
-      // Will use mint
-      await myFactory.mint(GOLD, userB, quantity, "0x0", { from: owner });
-      // Check that the recipients got the correct quantity
-      const balanceUserA = await myCollectible.balanceOf(userA, GOLD);
-      assert.isOk(balanceUserA.eq(quantity));
-      const balanceUserB = await myCollectible.balanceOf(userB, GOLD);
-      assert.isOk(balanceUserB.eq(quantity));
-      // Check that balance is correct
-      const balanceOf = await myFactory.balanceOf(owner, GOLD);
-      assert.isOk(balanceOf.eq(vals.MAX_UINT256_BN.sub(total)));
-      // Check that total supply is correct
-      const totalSupply1 = await myCollectible.totalSupply(2);
-      assert.isOk(totalSupply1.eq(total));
     });
 
     it('should allow proxy to mint', async () => {
@@ -172,13 +176,13 @@ contract("CreatureAccessoryFactory", (accounts) => {
         { from: proxyForOwner }
       );
       // Check that the recipient got the correct quantity
-      const balanceUserA = await myCollectible.balanceOf(userA, PREMIUM);
+      const balanceUserA = await myLootBox.balanceOf(userA, toTokenId(PREMIUM));
       assert.isOk(balanceUserA.eq(total));
       // Check that balance is correct
       const balanceOf = await myFactory.balanceOf(owner, PREMIUM);
       assert.isOk(balanceOf.eq(vals.MAX_UINT256_BN.sub(total)));
       // Check that total supply is correct
-      const totalSupply = await myCollectible.totalSupply(PREMIUM);
+      const totalSupply = await myLootBox.totalSupply(toTokenId(PREMIUM));
       assert.isOk(totalSupply.eq(total));
     });
   });
@@ -255,7 +259,7 @@ contract("CreatureAccessoryFactory", (accounts) => {
   describe('#safeTransferFrom()', () => {
     it('should work for owner()', async () => {
       const amount = toBN(100);
-      const userBBalance = await myCollectible.balanceOf(userB, PREMIUM);
+      const userBBalance = await myLootBox.balanceOf(userB, toTokenId(PREMIUM));
       await myFactory.safeTransferFrom(
         vals.ADDRESS_ZERO,
         userB,
@@ -263,13 +267,13 @@ contract("CreatureAccessoryFactory", (accounts) => {
         amount,
         "0x0"
       );
-      const newUserBBalance = await myCollectible.balanceOf(userB, PREMIUM);
+      const newUserBBalance = await myLootBox.balanceOf(userB, toTokenId(PREMIUM));
       assert.isOk(newUserBBalance.eq(userBBalance.add(amount)));
     });
 
     it('should work for proxy', async () => {
       const amount = toBN(100);
-      const userBBalance = await myCollectible.balanceOf(userB, PREMIUM);
+      const userBBalance = await myLootBox.balanceOf(userB, toTokenId(PREMIUM));
       await myFactory.safeTransferFrom(
         vals.ADDRESS_ZERO,
         userB,
@@ -278,7 +282,7 @@ contract("CreatureAccessoryFactory", (accounts) => {
         "0x0",
         { from: proxyForOwner }
       );
-      const newUserBBalance = await myCollectible.balanceOf(userB, PREMIUM);
+      const newUserBBalance = await myLootBox.balanceOf(userB, toTokenId(PREMIUM));
       assert.isOk(newUserBBalance.eq(userBBalance.add(amount)));
     });
 

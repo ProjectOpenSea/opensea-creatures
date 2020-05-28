@@ -9,7 +9,6 @@ const vals = require('../lib/testValuesCommon.js');
 const MockProxyRegistry = artifacts.require(
   "../contracts/MockProxyRegistry.sol"
 );
-
 const LootBoxRandomness = artifacts.require(
   "../contracts/LootBoxRandomness.sol"
 );
@@ -163,12 +162,11 @@ contract("CreatureAccessoryLootBox", (accounts) => {
 
   // Calls _mint()
 
-  describe('#safeTransferFrom()', () => {
+  describe('#mintForOption()', () => {
     it('should work for owner()', async () => {
       const option = BASIC;
       const amount = toBN(1);
-      const receipt = await lootBox.safeTransferFrom(
-        vals.ADDRESS_ZERO,
+      const receipt = await lootBox.mintForOption(
         userB,
         option,
         amount,
@@ -190,8 +188,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     it('should work for proxy', async () => {
       const option = BASIC;
       const amount = toBN(1);
-      const receipt = await lootBox.safeTransferFrom(
-          vals.ADDRESS_ZERO,
+      const receipt = await lootBox.mintForOption(
           userB,
           option,
           amount,
@@ -213,8 +210,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     it('should not be callable by non-owner() and non-proxy', async () => {
       const amount = toBN(1);
       await truffleAssert.fails(
-        lootBox.safeTransferFrom(
-          vals.ADDRESS_ZERO,
+        lootBox.mintForOption(
           userB,
           PREMIUM,
           amount,
@@ -229,8 +225,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     it('should not work for invalid option', async () => {
       const amount = toBN(1);
       await truffleAssert.fails(
-        lootBox.safeTransferFrom(
-          vals.ADDRESS_ZERO,
+        lootBox.mintForOption(
           userB,
           NO_SUCH_OPTION,
           amount,

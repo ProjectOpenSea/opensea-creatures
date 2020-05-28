@@ -24,6 +24,7 @@ contract CreatureAccessoryLootBox is ERC1155MintBurn, Ownable, ReentrancyGuard {
   string public name;
   // Contract symbol
   string public symbol;
+  mapping (uint256 => uint256) tokenSupply;
 
   /**
    * @dev Example constructor. Sets minimal configuration.
@@ -74,11 +75,9 @@ contract CreatureAccessoryLootBox is ERC1155MintBurn, Ownable, ReentrancyGuard {
   }
 
   /**
-   * Hack to get things to work automatically on OpenSea.
-   * Use safeTransferFrom so the frontend doesn't have to worry about different method names.
+   *  @dev Mint the *option* id, not a token id.
    */
-  function safeTransferFrom(
-    address /*_from*/,
+  function mintForOption(
     address _to,
     uint256 _optionId,
     uint256 _amount,
@@ -88,6 +87,19 @@ contract CreatureAccessoryLootBox is ERC1155MintBurn, Ownable, ReentrancyGuard {
     require(_optionId < state.numOptions, "Lootbox: Invalid Option");
     uint256 optionTokenId = _optionId + 1;
     _mint(_to, optionTokenId, _amount, _data);
+  }
+
+  /**
+   *  @dev track the number of tokens minted.
+   */
+  function _mint(
+    address _to,
+    uint256 _id,
+    uint256 _quantity,
+    bytes memory _data
+  ) internal  {
+    tokenSupply[_id] = tokenSupply[_id].add(_quantity);
+    super._mint(_to, _id, _quantity, _data);
   }
 
   /**
@@ -111,5 +123,16 @@ contract CreatureAccessoryLootBox is ERC1155MintBurn, Ownable, ReentrancyGuard {
   ) internal view returns (bool) {
     ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
     return owner() == _address || address(proxyRegistry.proxies(owner())) == _address;
+  }
+
+  /**
+    * @dev Returns the total quantity for a token ID
+    * @param _id uint256 ID of the token to query
+    * @return amount of token in existence
+    */
+  function totalSupply(
+    uint256 _id
+  ) public view returns (uint256) {
+    return tokenSupply[_id];
   }
 }
