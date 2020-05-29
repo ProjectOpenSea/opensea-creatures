@@ -111,10 +111,11 @@ contract("CreatureAccessoryLootBox", (accounts) => {
   const NUM_OPTIONS = OPTIONS.length;
   const NO_SUCH_OPTION = toBN(NUM_OPTIONS + 10);
   const OPTIONS_AMOUNTS = [toBN(3), toBN(5), toBN(7)];
+  // Note that these are token IDs, not option IDs, so they are one higher
   const OPTION_GUARANTEES = [
     {},
-    { 0: toBN(3) },
-    { 0: toBN(3), 2: toBN(2), 4: toBN(1) }
+    { 1: toBN(3) },
+    { 1: toBN(3), 3: toBN(2), 5: toBN(1) }
   ];
 
   const owner = accounts[0];
@@ -238,16 +239,23 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     });
   });
 
-  describe('#open()', () => {
+  describe('#unpack()', () => {
     it('should mint guaranteed class amounts for each option', async () => {
-      // We transferred one of each in previous tests.
-      //for (let i = 0; i < NUM_OPTIONS; i++)
-      i = 0;
-      {
+      for (let i = 0; i < NUM_OPTIONS; i++) {
         const option = OPTIONS[i];
         const amount = toBN(1);
-        const receipt = await lootBox.open(
+
+        await lootBox.mintForOption(
+          userB,
           option,
+          amount,
+          "0x0",
+          { from: proxyForOwner }
+      );
+
+        const receipt = await lootBox.unpack(
+        // Token IDs are option IDs + 1
+          option.add(toBN(1)),
           userB,
           amount,
           { from: userB }

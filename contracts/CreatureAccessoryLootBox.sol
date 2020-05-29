@@ -33,9 +33,9 @@ contract CreatureAccessoryLootBox is ERC1155MintBurn, Ownable, ReentrancyGuard {
    *                              On mainnet: "0xa5409ec958c83c3f309868babaca7c86dcb077c1"
    */
   constructor(address _proxyRegistryAddress) public {
-      name = "OpenSea Creature Accessory Loot Box";
-      symbol = "OSCALOOT";
-      proxyRegistryAddress = _proxyRegistryAddress;
+    name = "OpenSea Creature Accessory Loot Box";
+    symbol = "OSCALOOT";
+    proxyRegistryAddress = _proxyRegistryAddress;
   }
 
   function setState(
@@ -60,18 +60,18 @@ contract CreatureAccessoryLootBox is ERC1155MintBurn, Ownable, ReentrancyGuard {
   // MAIN FUNCTIONS
   //////
 
-  function open(
-    uint256 _optionId,
+  // Note that we burn the token id but mint the option id.
+
+  function unpack(
+    uint256 _tokenId,
     address _toAddress,
     uint256 _amount
   ) external {
-    require(_optionId < state.numOptions, "Lootbox: Invalid Option");
-    // Note that we burn the token id but mint the option id.
-    uint256 optionTokenId = _optionId + 1;
     // This will underflow if msg.sender does not own enough tokens.
-    _burn(msg.sender, optionTokenId, _amount);
+    _burn(msg.sender, _tokenId, _amount);
+    uint256 optionId = _tokenId - 1;
     // Mint nfts contained by LootBox
-    LootBoxRandomness._mint(state, _optionId, _toAddress, _amount, "", address(this));
+    LootBoxRandomness._mint(state, optionId, _toAddress, _amount, "", address(this));
   }
 
   /**
