@@ -2,7 +2,9 @@
 
 const truffleAssert = require('truffle-assertions');
 
-const vals = require('../lib/testValuesCommon.js');
+const setup = require('../lib/setupCreatureAccessories.js');
+const testVals = require('../lib/testValuesCommon.js');
+const vals = require('../lib/valuesCommon.js');
 
 /* Contracts in this test */
 
@@ -12,10 +14,11 @@ const MockProxyRegistry = artifacts.require(
 const LootBoxRandomness = artifacts.require(
   "../contracts/LootBoxRandomness.sol"
 );
+const CreatureAccessory = artifacts.require("../contracts/CreatureAccessory.sol");
+const CreatureAccessoryFactory = artifacts.require("../contracts/CreatureAccessoryFactory.sol");
 const CreatureAccessoryLootBox = artifacts.require(
   "../contracts/CreatureAccessoryLootBox.sol"
 );
-const CreatureAccessory = artifacts.require("../contracts/CreatureAccessory.sol");
 
 
 /* Useful aliases */
@@ -103,27 +106,13 @@ const compareTokenTotals = (totals, spec, option) => {
 /* Tests */
 
 contract("CreatureAccessoryLootBox", (accounts) => {
-  const NUM_CLASSES = 6;
-  const BASIC = toBN(0);
-  const PREMIUM = toBN(1);
-  const GOLD = toBN(2);
-  const OPTIONS = [BASIC, PREMIUM, GOLD];
-  const NUM_OPTIONS = OPTIONS.length;
-  const NO_SUCH_OPTION = toBN(NUM_OPTIONS + 10);
-  const OPTIONS_AMOUNTS = [toBN(3), toBN(5), toBN(7)];
-  // Note that these are token IDs, not option IDs, so they are one higher
-  const OPTION_GUARANTEES = [
-    {},
-    { 1: toBN(3) },
-    { 1: toBN(3), 3: toBN(2), 5: toBN(1) }
-  ];
-
   const owner = accounts[0];
   const userA = accounts[1];
   const userB = accounts[2];
   const proxyForOwner = accounts[8];
 
   let lootBox;
+  let factory;
   let creatureAccessory;
   let proxy;
 
@@ -132,40 +121,26 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     await proxy.setProxy(owner, proxyForOwner);
     creatureAccessory = await CreatureAccessory.new(proxy.address);
     CreatureAccessoryLootBox.link(LootBoxRandomness);
-    lootBox = await CreatureAccessoryLootBox.new(proxy.address);
-    await creatureAccessory.transferOwnership(lootBox.address);
-    // Manually configure this state as we have manually deployed.
-    await lootBox.setState(
+    lootBox = await CreatureAccessoryLootBox.new(
+      proxy.address,
+      { gas: 6721975 }
+    );
+    factory = await CreatureAccessoryFactory.new(
+      proxy.address,
       creatureAccessory.address,
-      NUM_OPTIONS,
-      NUM_CLASSES,
-      1337
+      lootBox.address
     );
-    await lootBox.setOptionSettings(
-      BASIC,
-      3,
-      [7300, 2100, 400, 100, 50, 50],
-      [0, 0, 0, 0, 0, 0]
-    );
-    await lootBox.setOptionSettings(
-      PREMIUM,
-      5,
-      [7300, 2100, 400, 100, 50, 50],
-      [3, 0, 0, 0, 0, 0]
-    );
-    await lootBox.setOptionSettings(
-      GOLD,
-      7,
-      [7300, 2100, 400, 100, 50, 50],
-      [3, 0, 2, 0, 1, 0]
-    );
+    await setup.setupAccessory(creatureAccessory, owner);
+    await creatureAccessory.setApprovalForAll(owner, factory.address);
+    await creatureAccessory.transferOwnership(factory.address);
+    await setup.setupAccessoryLootBox(lootBox, factory);
   });
 
   // Calls _mint()
 
   describe('#mintForOption()', () => {
     it('should work for owner()', async () => {
-      const option = BASIC;
+      const option = toBN(vals.LOOTBOX_OPTION_BASIC);
       const amount = toBN(1);
       const receipt = await lootBox.mintForOption(
         userB,
@@ -178,16 +153,16 @@ contract("CreatureAccessoryLootBox", (accounts) => {
         receipt,
         'TransferSingle',
         {
-          _from: vals.ADDRESS_ZERO,
+          _from: testVals.ADDRESS_ZERO,
           _to: userB,
-          //_id: option.add(toBN(1)),
+          _id: toBN(1), // This should work but doesn't: option.add(toBN(1)),
           _amount: amount
         }
       );
     });
 
     it('should work for proxy', async () => {
-      const option = BASIC;
+      const option = vals.LOOTBOX_OPTION_BASIC;
       const amount = toBN(1);
       const receipt = await lootBox.mintForOption(
           userB,
@@ -200,7 +175,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
         receipt,
         'TransferSingle',
         {
-          _from: vals.ADDRESS_ZERO,
+          _from: testVals.ADDRESS_ZERO,
           _to: userB,
           //_id: option.add(toBN(1)),
           _amount: amount
@@ -213,7 +188,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
       await truffleAssert.fails(
         lootBox.mintForOption(
           userB,
-          PREMIUM,
+          vals.LOOTBOX_OPTION_PREMIUM,
           amount,
           "0x0",
           { from: userB }
@@ -228,7 +203,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
       await truffleAssert.fails(
         lootBox.mintForOption(
           userB,
-          NO_SUCH_OPTION,
+          vals.NO_SUCH_LOOTBOX_OPTION,
           amount,
           "0x0",
           { from: owner }
@@ -241,8 +216,9 @@ contract("CreatureAccessoryLootBox", (accounts) => {
 
   describe('#unpack()', () => {
     it('should mint guaranteed class amounts for each option', async () => {
-      for (let i = 0; i < NUM_OPTIONS; i++) {
-        const option = OPTIONS[i];
+      for (let i = 0; i < vals.NUM_LOOTBOX_OPTIONS; i++) {
+        const option = vals.LOOTBOX_OPTIONS[i];
+        const tokenId = toBN(option).add(toBN(1));
         const amount = toBN(1);
 
         await lootBox.mintForOption(
@@ -251,11 +227,10 @@ contract("CreatureAccessoryLootBox", (accounts) => {
           amount,
           "0x0",
           { from: proxyForOwner }
-      );
-
+        );
         const receipt = await lootBox.unpack(
         // Token IDs are option IDs + 1
-          option.add(toBN(1)),
+          tokenId,
           userB,
           amount,
           { from: userB }
@@ -265,14 +240,15 @@ contract("CreatureAccessoryLootBox", (accounts) => {
           'LootBoxOpened',
           {
             boxesPurchased: amount,
-            optionId: option,
+            optionId: toBN(option),
             buyer: userB,
-            itemsMinted: OPTIONS_AMOUNTS[option]
+            itemsMinted: toBN(vals.LOOTBOX_OPTION_AMOUNTS[option])
           }
         );
+
         const totals = totalEventTokens(receipt, userB);
-        assert.ok(totals.total.eq(OPTIONS_AMOUNTS[option]));
-        compareTokenTotals(totals, OPTION_GUARANTEES[option], option);
+        assert.ok(totals.total.eq(toBN(vals.LOOTBOX_OPTION_AMOUNTS[option])));
+        compareTokenTotals(totals, vals.LOOTBOX_OPTION_GUARANTEES[option], option);
       }
     });
   });

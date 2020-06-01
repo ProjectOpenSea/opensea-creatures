@@ -3,7 +3,7 @@ pragma solidity ^0.5.11;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "./IFactory.sol";
-import "./CreatureAccessoryLootBox.sol";
+import "./ERC1155Tradable.sol";
 import "./Strings.sol";
 
 /**
@@ -16,6 +16,7 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
   using SafeMath for uint256;
 
   address public proxyRegistryAddress;
+  address public nftAddress;
   address public lootBoxAddress;
   string constant internal baseMetadataURI = "https://creatures-api.opensea.io/api/";
   uint256 constant UINT256_MAX = ~uint256(0);
@@ -26,18 +27,26 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
    */
   uint256 constant SUPPLY_PER_TOKEN_ID = UINT256_MAX;
 
+  // The number of creature accessories (not creature accessory rarity classes!)
+  uint256 constant NUM_ITEM_OPTIONS = 6;
+
   /**
    * Three different options for minting CreatureAccessories (basic, premium, and gold).
    */
-  enum Option {
-    Basic,
-    Premium,
-    Gold
-  }
-  uint256 constant NUM_OPTIONS = 3;
+  uint256 constant public BASIC_LOOTBOX = NUM_ITEM_OPTIONS + 0;
+  uint256 constant public PREMIUM_LOOTBOX = NUM_ITEM_OPTIONS + 1;
+  uint256 constant public GOLD_LOOTBOX = NUM_ITEM_OPTIONS + 2;
+  uint256 constant public NUM_LOOTBOX_OPTIONS = 3;
 
-  constructor(address _proxyRegistryAddress, address _lootBoxAddress) public {
+  uint256 NUM_OPTIONS = NUM_ITEM_OPTIONS + NUM_LOOTBOX_OPTIONS;
+
+  constructor(
+    address _proxyRegistryAddress,
+    address _nftAddress,
+    address _lootBoxAddress
+  ) public {
     proxyRegistryAddress = _proxyRegistryAddress;
+    nftAddress = _nftAddress;
     lootBoxAddress = _lootBoxAddress;
   }
 
@@ -62,15 +71,7 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
   }
 
   function numOptions() external view returns (uint256) {
-    return NUM_OPTIONS;
-  }
-
-  function canMint(uint256 _optionId, uint256 _amount) external view returns (bool) {
-    return _canMint(msg.sender, Option(_optionId), _amount);
-  }
-
-  function mint(uint256 _optionId, address _toAddress, uint256 _amount, bytes calldata _data) external nonReentrant() {
-    return _mint(Option(_optionId), _toAddress, _amount, _data);
+    return NUM_LOOTBOX_OPTIONS + NUM_ITEM_OPTIONS;
   }
 
   function uri(uint256 _optionId) external view returns (string memory) {
@@ -81,20 +82,65 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
     );
   }
 
+  function canMint(uint256 _optionId, uint256 _amount) external view returns (bool) {
+    return _canMint(msg.sender, _optionId, _amount);
+  }
+
+  function mint(uint256 _optionId, address _toAddress, uint256 _amount, bytes calldata _data) external nonReentrant() {
+    return _mint(_optionId, _toAddress, _amount, _data);
+  }
+
   /**
    * @dev Main minting logic implemented here!
-     NOTE: We *only* mint lootboxes.
    */
   function _mint(
-    Option _option,
+    uint256 _option,
     address _toAddress,
     uint256 _amount,
     bytes memory _data
   ) internal {
     require(_canMint(msg.sender, _option, _amount), "CreatureAccessoryFactory#_mint: CANNOT_MINT_MORE");
-    uint256 optionId = uint256(_option);
-    CreatureAccessoryLootBox lootBox = CreatureAccessoryLootBox(lootBoxAddress);
-    lootBox.mintForOption(_toAddress, optionId, _amount, _data);
+    if (_option < NUM_ITEM_OPTIONS) {
+      require(
+        _isOwnerOrProxy(msg.sender) || msg.sender == lootBoxAddress,
+        "Caller cannot mint accessories"
+      );
+      uint256 tokenId = _option + 1;
+      // Option IDs start at 0, Token IDs start at 1
+      _createOrMint(nftAddress, _toAddress, tokenId, _amount, "");
+    } else if (_option < NUM_OPTIONS) {
+      require(_isOwnerOrProxy(msg.sender), "Caller cannot mint boxes");
+      uint256 lootBoxOption = _option - NUM_ITEM_OPTIONS;
+      uint256 lootBoxTokenId = lootBoxOption + 1;
+      _createOrMint(lootBoxAddress, _toAddress, lootBoxTokenId, _amount, _data);
+    } else {
+      revert("Unknown _option");
+    }
+  }
+
+  /*
+   * Note: make sure code that calls this is non-reentrant.
+   * Note: this is the token _id *within* the ERC1155 contract, not the option
+   *       id from this contract.
+   */
+  function _createOrMint (address _erc1155Address, address _to, uint256 _id, uint256 _amount, bytes memory _data)
+  internal {
+    ERC1155Tradable tradable = ERC1155Tradable(_erc1155Address);
+    // Lazily create the token
+    if (! tradable.exists(_id)) {
+      tradable.create(_to, _id, _amount, "", _data);
+    } else {
+      // Are we sending a premine of the token?
+      //if (_tokenHasPremintedAllocation(_erc1155Address, _id)) {
+      //  tradable.safeTransferFrom(address(this), _to, _id, _amount, _data);
+      //} else {
+        // Or are we just minting as we go?
+        // Note that this will fail if there *was* a premine but we have already
+        // transferred all the tokens. Which is correct behaviour but slightly
+        // hidden by this logic.
+      tradable.mint(_to, _id, _amount, _data);
+      //}
+    }
   }
 
   /**
@@ -106,49 +152,39 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
     address _owner,
     uint256 _optionId
   ) public view returns (uint256) {
-    if (!_isOwnerOrProxy(_owner)) {
-      // Only the factory owner or owner's proxy can have supply
-      return 0;
+    address tradableAddress;
+    uint256 tokenId;
+    if ( _optionId < NUM_ITEM_OPTIONS) {
+      if ((!_isOwnerOrProxy(_owner)) && _owner != lootBoxAddress) {
+        // Only the factory's owner or owner's proxy,
+        // or the lootbox can have supply
+        return 0;
+      }
+      tradableAddress = nftAddress;
+      tokenId = _optionId + 1;
+    } else {
+      if (!_isOwnerOrProxy(_owner)) {
+        // Only the factory owner or owner's proxy can have supply
+        return 0;
+      }
+      tradableAddress = lootBoxAddress;
+      tokenId = (_optionId + 1 - NUM_ITEM_OPTIONS);
     }
-    // Token IDs start at 1, option IDs start at 0.
-    uint256 tokenId = _optionId + 1;
-    CreatureAccessoryLootBox lootBox = CreatureAccessoryLootBox(lootBoxAddress);
-    uint256 currentSupply = lootBox.totalSupply(tokenId);
+    ERC1155Tradable tradable = ERC1155Tradable(tradableAddress);
+    uint256 currentSupply = tradable.totalSupply(tokenId);
     return SUPPLY_PER_TOKEN_ID.sub(currentSupply);
-  }
-
-  /**
-   * Hack to get things to work automatically on OpenSea.
-   * Use safeTransferFrom so the frontend doesn't have to worry about different method names.
-   */
-  function safeTransferFrom(
-    address /* _from */,
-    address _to,
-    uint256 _optionId,
-    uint256 _amount,
-    bytes calldata _data
-  ) external {
-    _mint(Option(_optionId), _to, _amount, _data);
   }
 
   //////
   // Below methods shouldn't need to be overridden or modified
   //////
 
-  function isApprovedForAll(
-    address _owner,
-    address _operator
-  ) public view returns (bool) {
-    return owner() == _owner && _isOwnerOrProxy(_operator);
-  }
-
   function _canMint(
     address _fromAddress,
-    Option _option,
+    uint256 _optionId,
     uint256 _amount
   ) internal view returns (bool) {
-    uint256 optionId = uint256(_option);
-    return _amount > 0 && balanceOf(_fromAddress, optionId) >= _amount;
+    return _amount > 0 && balanceOf(_fromAddress, _optionId) >= _amount;
   }
 
   function _isOwnerOrProxy(
@@ -157,4 +193,21 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
     ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
     return owner() == _address || address(proxyRegistry.proxies(owner())) == _address;
   }
+
+  // This needs more complex logic that we do not have time for now.
+  /*
+   * @dev: Do we (still) control a pre-minted token allocation?
+   */
+  /*function _tokenHasPremintedAllocation(
+    address _erc1155Address,
+    uint256 _id
+  ) internal view returns (bool) {
+    ERC1155Tradable tradable = ERC1155Tradable(_erc1155Address);
+    uint256 currentSupply = tradable.totalSupply(_id);
+    if (currentSupply == 0) {
+      return true;
+    } else {
+        return tradable.balanceOf(address(this), _id) > 0;
+    }
+    }*/
 }

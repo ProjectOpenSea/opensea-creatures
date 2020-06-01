@@ -2,7 +2,7 @@ const HDWalletProvider = require("truffle-hdwallet-provider")
 const web3 = require('web3')
 const MNEMONIC = process.env.MNEMONIC
 const INFURA_KEY = process.env.INFURA_KEY
-const FACTORY_CONTRACT_ADDRESS = process.env.FACTORY_CONTRACT_ADDRESS
+const LOOTBOX_CONTRACT_ADDRESS = process.env.LOOTBOX_CONTRACT_ADDRESS
 const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
 
@@ -11,7 +11,7 @@ if (!MNEMONIC || !INFURA_KEY || !OWNER_ADDRESS || !NETWORK) {
     return
 }
 
-const FACTORY_ABI = [{
+const LOOTBOX_ABI = [{
     "constant": false,
     "inputs": [
         {
@@ -30,7 +30,7 @@ const FACTORY_ABI = [{
             "type": "uint256"
         }
     ],
-    "name": "open",
+    "name": "unpack",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -46,12 +46,12 @@ async function main() {
         provider
     )
 
-    if (!FACTORY_CONTRACT_ADDRESS) {
-        console.error("Please set an NFT contract address.")
+    if (!LOOTBOX_CONTRACT_ADDRESS) {
+        console.error("Please set a LootBox contract address.")
         return
     }
 
-    const factoryContract = new web3Instance.eth.Contract(FACTORY_ABI, FACTORY_CONTRACT_ADDRESS, { gasLimit: "1000000" })
+    const factoryContract = new web3Instance.eth.Contract(LOOTBOX_ABI, LOOTBOX_CONTRACT_ADDRESS, { gasLimit: "1000000" })
     const result = await factoryContract.methods.open(0, OWNER_ADDRESS, 1).send({ from: OWNER_ADDRESS });
     console.log("Created. Transaction: " + result.transactionHash)
 }

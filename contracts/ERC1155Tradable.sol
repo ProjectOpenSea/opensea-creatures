@@ -21,7 +21,6 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
   using Strings for string;
 
   address proxyRegistryAddress;
-  uint256 private _currentTokenID = 0;
   mapping (uint256 => address) public creators;
   mapping (uint256 => uint256) public tokenSupply;
   // Contract name
@@ -88,8 +87,17 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
 
   /**
     * @dev Creates a new token type and assigns _initialSupply to an address
-    * NOTE: remove onlyOwner if you want third parties to create new tokens on your contract (which may change your IDs)
+    * NOTE: remove onlyOwner if you want third parties to create new tokens on
+    *       your contract (which may change your IDs)
+    * NOTE: The token id must be passed. This allows lazy creation of tokens or
+    *       creating NFTs by setting the id's high bits with the method
+    *       described in ERC1155 or to use ids representing values other than
+    *       successive small integers. If you wish to create ids as successive
+    *       small integers you can either subclass this class to cound onchain
+    *       or maintain the offchain cache of identifiers recommended in
+    *       ERC1155 and calculate successive ids from that.
     * @param _initialOwner address of the first owner of the token
+    * @param _id The id of the token to create (must not currenty exist).
     * @param _initialSupply amount to supply the first owner
     * @param _uri Optional URI for this token type
     * @param _data Data to pass if receiver is contract
@@ -97,13 +105,12 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
     */
   function create(
     address _initialOwner,
+    uint256 _id,
     uint256 _initialSupply,
     string memory _uri,
     bytes memory _data
   ) public onlyOwner returns (uint256) {
-
-    uint256 _id = _getNextTokenID();
-    _incrementTokenTypeId();
+    require(!_exists(_id), "token _id already exists");
     creators[_id] = msg.sender;
 
     if (bytes(_uri).length > 0) {
@@ -111,6 +118,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
     }
 
     _mint(_initialOwner, _id, _initialSupply, _data);
+
     tokenSupply[_id] = _initialSupply;
     return _id;
   }
@@ -207,18 +215,9 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
     return creators[_id] != address(0);
   }
 
-  /**
-    * @dev calculates the next token ID based on value of _currentTokenID
-    * @return uint256 for the next token ID
-    */
-  function _getNextTokenID() private view returns (uint256) {
-    return _currentTokenID.add(1);
-  }
-
-  /**
-    * @dev increments the value of _currentTokenID
-    */
-  function _incrementTokenTypeId() private  {
-    _currentTokenID++;
+  function exists(
+    uint256 _id
+  ) external view returns (bool) {
+    return _exists(_id);
   }
 }

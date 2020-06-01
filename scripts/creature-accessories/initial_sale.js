@@ -13,7 +13,8 @@ const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
 const API_KEY = process.env.API_KEY || "" // API key is optional but useful if you're doing a high volume of requests.
 
-const FIXED_PRICE_OPTION_IDS = ["0", "1", "2"];
+// Lootboxes only
+const FIXED_PRICE_OPTION_IDS = ["6", "7", "8"];
 const FIXED_PRICES_ETH = [0.1, 0.2, 0.3];
 const NUM_FIXED_PRICE_AUCTIONS = [1000, 1000, 1000]; // [2034, 2103, 2202];
 

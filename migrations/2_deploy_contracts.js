@@ -1,18 +1,23 @@
 const Creature = artifacts.require("./Creature.sol");
 const CreatureFactory = artifacts.require("./CreatureFactory.sol");
 const CreatureLootBox = artifacts.require("./CreatureLootBox.sol");
-const CreatureAccessory = artifacts.require("CreatureAccessory");
-const CreatureAccessoryLootBox = artifacts.require("CreatureAccessoryLootBox");
-const LootBoxRandomness = artifacts.require("LootBoxRandomness");
+const CreatureAccessory = artifacts.require("../contracts/CreatureAccessory.sol");
+const CreatureAccessoryFactory = artifacts.require("../contracts/CreatureAccessoryFactory.sol");
+const CreatureAccessoryLootBox = artifacts.require(
+  "../contracts/CreatureAccessoryLootBox.sol"
+);
+const LootBoxRandomness = artifacts.require(
+  "../contracts/LootBoxRandomness.sol"
+);
+
+const setupCreatureAccessories = require("../lib/setupCreatureAccessories.js");
 
 // Set to false if you only want the collectible to deploy
 const ACCESSORIES_ENABLE_LOOTBOX = true;
 // Set if you want to create your own collectible
-const ACCESSORIES_NFT_ADDRESS_TO_USE = CreatureAccessory.address; // or e.g. Enjin: '0xfaafdc07907ff5120a76b34b731b278c38d6043c'
-// If you want to set preminted token ids for specific classes
-const ACCESSORIES_TOKEN_ID_MAPPING = undefined; // { [key: number]: Array<[tokenId: string]> }
+const ACCESSORIES_NFT_ADDRESS_TO_USE = null; // or e.g. Enjin: '0xfaafdc07907ff5120a76b34b731b278c38d6043c'
 
-module.exports = function(deployer, network) {
+module.exports = async (deployer, network, addresses) => {
   // OpenSea proxy registry addresses for rinkeby and mainnet.
   let proxyRegistryAddress = "";
   if (network === 'rinkeby') {
@@ -21,52 +26,49 @@ module.exports = function(deployer, network) {
     proxyRegistryAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
   }
 
-  deployer.deploy(Creature, proxyRegistryAddress, {gas: 5000000});
+  await deployer.deploy(Creature, proxyRegistryAddress, {gas: 5000000});
 
   // Uncomment this if you want initial item sale support.
-  // deployer.deploy(Creature, proxyRegistryAddress, {gas: 5000000}).then(() => {
-  //   return deployer.deploy(CreatureFactory, proxyRegistryAddress, Creature.address, {gas: 7000000});
-  // }).then(async() => {
-  //   var creature = await Creature.deployed();
-  //   return creature.transferOwnership(CreatureFactory.address);
-  // })
+  // await deployer.deploy(Creature, proxyRegistryAddress, {gas: 5000000});
+  // await deployer.deploy(CreatureFactory, proxyRegistryAddress, Creature.address, {gas: 7000000});
+  // const creature = await Creature.deployed();
+  // await creature.transferOwnership(CreatureFactory.address);
 
-  deployer.deploy(CreatureAccessory, proxyRegistryAddress, { gas: 5000000 })
-  .then(async() => {
-    return deployer.deploy(
-      LootBoxRandomness
-    ).then(async () => {
-      return deployer.link(LootBoxRandomness, CreatureAccessoryLootBox);
-    }).then(async () => {
-      const collectible = await CreatureAccessory.deployed();
-      return deployer.deploy(
-        CreatureAccessoryLootBox,
-        proxyRegistryAddress,
-        { gas: 6721975 });
-    }).then(setupAccessoriesLootbox);
-  });
-};
-
-async function setupAccessoriesLootbox() {
-  const lootbox = await CreatureAccessoryLootBox.deployed();
-  const collectible = await CreatureAccessory.deployed();
-
-  if (!ACCESSORIES_NFT_ADDRESS_TO_USE) {
-    await collectible.transferOwnership(CreatureAccessoryLootBox.address);
-  }
-
-  await lootbox.setState(
-    ACCESSORIES_NFT_ADDRESS_TO_USE || collectible.address,
-    3,
-    6,
-    1337
+  // Comment this out if you don't want to deploy the accessories
+  await deployer.deploy(
+    CreatureAccessory,
+    proxyRegistryAddress,
+    { gas: 5000000 }
   );
-
-  if (ACCESSORIES_TOKEN_ID_MAPPING) {
-    for (const rarity in ACCESSORIES_TOKEN_ID_MAPPING) {
-      console.log(`Setting token ids for rarity ${rarity}`);
-      const tokenIds = ACCESSORIES_TOKEN_ID_MAPPING[rarity];
-      await lootbox.setTokenIdsForClass(rarity, tokenIds);
-    }
-  }
-}
+  const accessories = await CreatureAccessory.deployed();
+  await setupCreatureAccessories.setupAccessory(
+    accessories,
+    addresses[0]
+  );
+  // Uncomment this if you want initial accessory sale support.
+  await deployer.deploy(LootBoxRandomness);
+  await deployer.link(LootBoxRandomness, CreatureAccessoryLootBox);
+  await deployer.deploy(
+    CreatureAccessoryLootBox,
+    proxyRegistryAddress,
+    { gas: 6721975 }
+  );
+  const lootBox = await CreatureAccessoryLootBox.deployed();
+  await deployer.deploy(
+    CreatureAccessoryFactory,
+    proxyRegistryAddress,
+    CreatureAccessory.address,
+    CreatureAccessoryLootBox.address,
+    { gas: 5000000 }
+  );
+  const factory = await CreatureAccessoryFactory.deployed();
+  await accessories.setApprovalForAll(
+    addresses[0],
+    CreatureAccessoryFactory.address
+  );
+  await accessories.transferOwnership(
+    CreatureAccessoryFactory.address
+  );
+  await setupCreatureAccessories.setupAccessoryLootBox(lootBox, factory);
+  await lootBox.transferOwnership(factory.address);
+};

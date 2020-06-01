@@ -70,7 +70,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
        async () => {
          tokenId += 1;
          truffleAssert.eventEmitted(
-           await instance.create(owner, 0, "", "0x0", { from: owner }),
+           await instance.create(owner, tokenId, 0, "", "0x0", { from: owner }),
            'TransferSingle',
            {
              _operator: owner,
@@ -90,6 +90,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
          truffleAssert.eventEmitted(
            await instance.create(
              owner,
+             tokenId,
              MINT_AMOUNT,
              "",
              "0x0",
@@ -114,7 +115,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
        async () => {
          tokenId += 1;
          truffleAssert.eventEmitted(
-           await instance.create(owner, 33, "", "0x0", { from: owner }),
+           await instance.create(owner, tokenId, 33, "", "0x0", { from: owner }),
            'TransferSingle',
            { _id: toBN(tokenId) }
          );
@@ -132,13 +133,13 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
          // in their events.
          tokenId += 1;
          await truffleAssert.eventEmitted(
-           await instance.create(owner, 0, "", "0x0", { from: owner }),
+           await instance.create(owner, tokenId, 0, "", "0x0", { from: owner }),
            'TransferSingle',
            { _id: toBN(tokenId) }
          );
          tokenId += 1;
          await truffleAssert.eventEmitted(
-           await instance.create(owner, 0, "", "0x0", { from: owner }),
+           await instance.create(owner, tokenId, 0, "", "0x0", { from: owner }),
            'TransferSingle',
            { _id: toBN(tokenId) }
          );
@@ -146,8 +147,9 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
 
     it('should not allow a non-owner to create tokens',
        async () => {
+         tokenId += 1;
          truffleAssert.fails(
-           instance.create(userA, 0, "", "0x0", { from: userA }),
+           instance.create(userA, tokenId, 0, "", "0x0", { from: userA }),
            truffleAssert.ErrorType.revert,
            'caller is not the owner'
          );
@@ -159,6 +161,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
          truffleAssert.eventEmitted(
            await instance.create(
              owner,
+             tokenId,
              0,
              vals.URI_BASE,
              "0x0",
@@ -176,7 +179,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
        async () => {
          tokenId += 1;
          truffleAssert.eventNotEmitted(
-           await instance.create(owner, 0, "", "0x0", { from: owner }),
+           await instance.create(owner, tokenId, 0, "", "0x0", { from: owner }),
            'URI'
          );
        });
@@ -186,7 +189,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
     it('should return correct value for token supply',
        async () => {
          tokenId += 1;
-         await instance.create(owner, MINT_AMOUNT, "", "0x0", { from: owner });
+         await instance.create(owner, tokenId, MINT_AMOUNT, "", "0x0", { from: owner });
          const balance = await instance.balanceOf(owner, tokenId);
          assert.ok(balance.eq(MINT_AMOUNT));
          // Use the created getter for the map

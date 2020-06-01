@@ -1,8 +1,7 @@
 pragma solidity ^0.5.11;
 
-
-import "./ERC1155Tradable.sol";
-
+// Eek!
+import "multi-token-standard/contracts/utils/SafeMath.sol";
 
 /*
   DESIGN NOTES:
@@ -26,6 +25,10 @@ import "./ERC1155Tradable.sol";
     CreatureAccessoryFactory.
  */
 
+contract Factory {
+    function mint(uint256 _optionId, address _toAddress, uint256 _amount, bytes calldata _data) external;
+    function balanceOf(address _owner, uint256 _optionId) public view returns (uint256);
+}
 
 /**
  * @title LootBoxRandomness
@@ -54,12 +57,11 @@ library LootBoxRandomness {
   }
 
   struct LootBoxRandomnessState {
-      address nftAddress;
+      address factoryAddress;
       uint256 numOptions;
       uint256 numClasses;
       mapping (uint256 => OptionSettings) optionToSettings;
       mapping (uint256 => uint256[]) classToTokenIds;
-      mapping (uint256 => bool) classIsPreminted;
       uint256 seed;
   }
 
@@ -72,12 +74,12 @@ library LootBoxRandomness {
    */
   function initState(
     LootBoxRandomnessState storage _state,
-    address _nftAddress,
+    address _factoryAddress,
     uint256 _numOptions,
     uint256 _numClasses,
     uint256 _seed
   ) public {
-      _state.nftAddress = _nftAddress;
+      _state.factoryAddress = _factoryAddress;
       _state.numOptions = _numOptions;
       _state.numClasses = _numClasses;
       _state.seed = _seed;
@@ -90,11 +92,9 @@ library LootBoxRandomness {
   function setClassForTokenId(
     LootBoxRandomnessState storage _state,
     uint256 _tokenId,
-    uint256 _classId,
-    address _owner
+    uint256 _classId
   ) public {
     require(_classId < _state.numClasses, "_class out of range");
-    _checkTokenApproval(_state, _owner);
     _addTokenIdToClass(_state, _classId, _tokenId);
   }
 
@@ -108,7 +108,6 @@ library LootBoxRandomness {
     uint256[] memory _tokenIds
   ) public {
     require(_classId < _state.numClasses, "_class out of range");
-    _state.classIsPreminted[_classId] = true;
     _state.classToTokenIds[_classId] = _tokenIds;
   }
 
@@ -121,7 +120,6 @@ library LootBoxRandomness {
     uint256 _classId
   ) public {require(
     _classId < _state.numClasses, "_class out of range");
-    delete _state.classIsPreminted[_classId];
     delete _state.classToTokenIds[_classId];
   }
 
@@ -129,17 +127,16 @@ library LootBoxRandomness {
    * @dev Set token IDs for each rarity class. Bulk version of `setTokenIdForClass`
    * @param _tokenIds List of token IDs to set for each class, specified above in order
    */
-  function setTokenIdsForClasses(
+  //Requires ABIEncoderV2
+  /*function setTokenIdsForClasses(
     LootBoxRandomnessState storage _state,
-    uint256[] memory _tokenIds,
-    address _owner
+    uint256[][] memory _tokenIds
   ) public {
     require(_tokenIds.length == _state.numClasses, "wrong _tokenIds length");
-    _checkTokenApproval(_state, _owner);
     for (uint256 i = 0; i < _tokenIds.length; i++) {
-      _addTokenIdToClass(_state, i, _tokenIds[i]);
+      setTokenIdsForClass(_state, i, _tokenIds[i]);
     }
-  }
+    }*/
 
   /**
    * @dev Set the settings for a particular lootbox option
@@ -196,20 +193,6 @@ library LootBoxRandomness {
   //////
 
   /**
-   * @dev Open a lootbox manually and send what's inside to _toAddress
-   * Convenience method for contract owner.
-   */
-  function open(
-    LootBoxRandomnessState storage _state,
-    uint256 _optionId,
-    address _toAddress,
-    uint256 _amount,
-    address _owner
-  ) external {
-      _mint(_state, _optionId, _toAddress, _amount, "", _owner);
-  }
-
-  /**
    * @dev Main minting logic for lootboxes
    * This is called via safeTransferFrom when CreatureAccessoryLootBox extends
    * CreatureAccessoryFactory.
@@ -238,10 +221,10 @@ library LootBoxRandomness {
       if (settings.hasGuaranteedClasses) {
         // Process guaranteed token ids
         for (uint256 classId = 0; classId < settings.guarantees.length; classId++) {
-          if (classId > 0) {
-            uint256 quantityOfGaranteed = settings.guarantees[classId];
-            _sendTokenWithClass(_state, classId, _toAddress, quantityOfGaranteed, _owner);
-            quantitySent += quantityOfGaranteed;
+          uint256 quantityOfGuaranteed = settings.guarantees[classId];
+          if(quantityOfGuaranteed > 0) {
+            _sendTokenWithClass(_state, classId, _toAddress, quantityOfGuaranteed, _owner);
+            quantitySent += quantityOfGuaranteed;
           }
         }
       }
@@ -274,22 +257,11 @@ library LootBoxRandomness {
     address _owner
   ) internal returns (uint256) {
     require(_classId < _state.numClasses, "_class out of range");
-    ERC1155Tradable nftContract = ERC1155Tradable(_state.nftAddress);
+    Factory factory = Factory(_state.factoryAddress);
     uint256 tokenId = _pickRandomAvailableTokenIdForClass(_state, _classId, _amount, _owner);
-    if (_state.classIsPreminted[_classId]) {
-      nftContract.safeTransferFrom(
-        _owner,
-        _toAddress,
-        tokenId,
-        _amount,
-        ""
-      );
-    } else if (tokenId == 0) {
-      tokenId = nftContract.create(_toAddress, _amount, "", "");
-      _state.classToTokenIds[_classId].push(tokenId);
-    } else {
-      nftContract.mint(_toAddress, tokenId, _amount, "");
-    }
+    uint256 optionId = tokenId - 1;
+    // This may mint, create or transfer. We don't handle that here.
+    factory.mint(optionId, _toAddress, _amount, "");
     return tokenId;
   }
 
@@ -320,30 +292,18 @@ library LootBoxRandomness {
   ) internal returns (uint256) {
     require(_classId < _state.numClasses, "_class out of range");
     uint256[] memory tokenIds = _state.classToTokenIds[_classId];
-    if (tokenIds.length == 0) {
-      // Unminted
-      require(
-          !_state.classIsPreminted[_classId],
-        "LootBoxRandomness#_pickRandomAvailableTokenIdForClass: NO_TOKEN_ON_PREMINTED_CLASS"
-      );
-      return 0;
-    }
-
+    require(tokenIds.length > 0, "No token ids for _classId");
     uint256 randIndex = _random(_state).mod(tokenIds.length);
-
-    if (_state.classIsPreminted[_classId]) {
-      // Make sure owner() owns enough
-      ERC1155Tradable nftContract = ERC1155Tradable(_state.nftAddress);
-      for (uint256 i = randIndex; i < randIndex + tokenIds.length; i++) {
-        uint256 tokenId = tokenIds[i % tokenIds.length];
-        if (nftContract.balanceOf(_owner, tokenId) >= _minAmount) {
-          return tokenId;
-        }
-      }
-      revert("LootBoxRandomness#_pickRandomAvailableTokenIdForClass: NOT_ENOUGH_TOKENS_FOR_CLASS");
-    } else {
-      return tokenIds[randIndex];
+    // Make sure owner() owns or can mint enough
+    Factory factory = Factory(_state.factoryAddress);
+    for (uint256 i = randIndex; i < randIndex + tokenIds.length; i++) {
+      uint256 tokenId = tokenIds[i % tokenIds.length];
+      uint256 optionId = tokenId - 1;
+      if (factory.balanceOf(_owner, optionId) >= _minAmount) {
+        return tokenId;
+     }
     }
+    revert("LootBoxRandomness#_pickRandomAvailableTokenIdForClass: NOT_ENOUGH_TOKENS_FOR_CLASS");
   }
 
   /**
@@ -356,21 +316,10 @@ library LootBoxRandomness {
     return randomNumber;
   }
 
-  /**
-   * @dev emit a Warning if we're not approved to transfer nftAddress
-   */
-  function _checkTokenApproval(LootBoxRandomnessState storage _state, address _owner) internal {
-    ERC1155Tradable nftContract = ERC1155Tradable(_state.nftAddress);
-    if (!nftContract.isApprovedForAll(_owner, address(this))) {
-      emit Warning("Lootbox contract is not approved for trading collectible by:", _owner);
-    }
-  }
-
   function _addTokenIdToClass(LootBoxRandomnessState storage _state, uint256 _classId, uint256 _tokenId) internal {
     // This is called by code that has already checked this, sometimes in a
     // loop, so don't pay the gas cost of checking this here.
     //require(_classId < _state.numClasses, "_class out of range");
-    _state.classIsPreminted[_classId] = true;
     _state.classToTokenIds[_classId].push(_tokenId);
   }
 }

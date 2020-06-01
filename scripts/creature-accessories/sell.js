@@ -8,7 +8,6 @@ const Web3ProviderEngine = require('web3-provider-engine')
 
 const MNEMONIC = process.env.MNEMONIC
 const INFURA_KEY = process.env.INFURA_KEY
-const FACTORY_CONTRACT_ADDRESS = process.env.FACTORY_CONTRACT_ADDRESS
 const NFT_CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS
 const OWNER_ADDRESS = process.env.OWNER_ADDRESS
 const NETWORK = process.env.NETWORK
@@ -19,8 +18,8 @@ if (!MNEMONIC || !INFURA_KEY || !NETWORK || !OWNER_ADDRESS) {
     return
 }
 
-if (!FACTORY_CONTRACT_ADDRESS && !NFT_CONTRACT_ADDRESS) {
-    console.error("Please either set a factory or NFT contract address.")
+if (!NFT_CONTRACT_ADDRESS) {
+    console.error("Please set an NFT contract address.")
     return
 }
 
