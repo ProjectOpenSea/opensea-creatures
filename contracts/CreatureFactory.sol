@@ -12,7 +12,7 @@ contract CreatureFactory is Factory, Ownable {
   address public proxyRegistryAddress;
   address public nftAddress;
   address public lootBoxNftAddress;
-  string public baseURI = "https://opensea-creatures-api.herokuapp.com/api/factory/";
+  string public baseURI = "https://creatures-api.opensea.io/api/factory/";
 
   /**
    * Enforce the existence of only 100 OpenSea creatures.
