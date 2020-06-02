@@ -148,10 +148,11 @@ contract("CreatureAccessoryFactory", (accounts) => {
       const balanceOf = await myFactory.balanceOf(owner, vals.CLASS_COMMON);
       assert.isOk(balanceOf.eq(testVals.MAX_UINT256_BN.sub(quantity)));
       // Check that total supply is correct
-      const totalSupply = await creatureAccessory.totalSupply(
+      const premintedRemaining = await creatureAccessory.balanceOf(
+        owner,
         toTokenId(vals.CLASS_COMMON)
       );
-      assert.isOk(totalSupply.eq(quantity));
+      assert.isOk(premintedRemaining.eq(toBN(vals.INITIAL_SUPPLY).sub(quantity)));
     });
 
     it('should allow proxy to mint', async () => {
@@ -175,10 +176,11 @@ contract("CreatureAccessoryFactory", (accounts) => {
       const balanceOf = await myFactory.balanceOf(owner, vals.CLASS_COMMON);
       assert.isOk(balanceOf.eq(testVals.MAX_UINT256_BN.sub(total)));
       // Check that total supply is correct
-      const totalSupply = await creatureAccessory.totalSupply(
+      const premintedRemaining = await creatureAccessory.balanceOf(
+        owner,
         toTokenId(vals.CLASS_COMMON)
       );
-      assert.isOk(totalSupply.eq(total));
+      assert.isOk(premintedRemaining.eq(toBN(vals.INITIAL_SUPPLY).sub(total)));
     });
   });
 

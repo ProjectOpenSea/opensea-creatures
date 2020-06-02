@@ -46,6 +46,8 @@ module.exports = async (deployer, network, addresses) => {
     addresses[0]
   );
   // Uncomment this if you want initial accessory sale support.
+  // (Or you want to run the tests.)
+  /*
   await deployer.deploy(LootBoxRandomness);
   await deployer.link(LootBoxRandomness, CreatureAccessoryLootBox);
   await deployer.deploy(
@@ -71,4 +73,5 @@ module.exports = async (deployer, network, addresses) => {
   );
   await setupCreatureAccessories.setupAccessoryLootBox(lootBox, factory);
   await lootBox.transferOwnership(factory.address);
+  */
 };

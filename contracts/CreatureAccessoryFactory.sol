@@ -38,7 +38,7 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
   uint256 constant public GOLD_LOOTBOX = NUM_ITEM_OPTIONS + 2;
   uint256 constant public NUM_LOOTBOX_OPTIONS = 3;
 
-  uint256 NUM_OPTIONS = NUM_ITEM_OPTIONS + NUM_LOOTBOX_OPTIONS;
+  uint256 constant public NUM_OPTIONS = NUM_ITEM_OPTIONS + NUM_LOOTBOX_OPTIONS;
 
   constructor(
     address _proxyRegistryAddress,
@@ -105,13 +105,17 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
         _isOwnerOrProxy(msg.sender) || msg.sender == lootBoxAddress,
         "Caller cannot mint accessories"
       );
-      uint256 tokenId = _option + 1;
       // Option IDs start at 0, Token IDs start at 1
-      _createOrMint(nftAddress, _toAddress, tokenId, _amount, "");
+      uint256 tokenId = _option + 1;
+      // Items are pre-mined (by the owner), so transfer them (We are an
+      // operator for the owner).
+      ERC1155Tradable items = ERC1155Tradable(nftAddress);
+      items.safeTransferFrom(owner(), _toAddress, tokenId, _amount, _data);
     } else if (_option < NUM_OPTIONS) {
       require(_isOwnerOrProxy(msg.sender), "Caller cannot mint boxes");
       uint256 lootBoxOption = _option - NUM_ITEM_OPTIONS;
       uint256 lootBoxTokenId = lootBoxOption + 1;
+      // LootBoxes are not premined, so we need to create or mint them.
       _createOrMint(lootBoxAddress, _toAddress, lootBoxTokenId, _amount, _data);
     } else {
       revert("Unknown _option");
@@ -130,16 +134,7 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
     if (! tradable.exists(_id)) {
       tradable.create(_to, _id, _amount, "", _data);
     } else {
-      // Are we sending a premine of the token?
-      //if (_tokenHasPremintedAllocation(_erc1155Address, _id)) {
-      //  tradable.safeTransferFrom(address(this), _to, _id, _amount, _data);
-      //} else {
-        // Or are we just minting as we go?
-        // Note that this will fail if there *was* a premine but we have already
-        // transferred all the tokens. Which is correct behaviour but slightly
-        // hidden by this logic.
       tradable.mint(_to, _id, _amount, _data);
-      //}
     }
   }
 
@@ -152,32 +147,29 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
     address _owner,
     uint256 _optionId
   ) public view returns (uint256) {
-    address tradableAddress;
-    uint256 tokenId;
     if ( _optionId < NUM_ITEM_OPTIONS) {
       if ((!_isOwnerOrProxy(_owner)) && _owner != lootBoxAddress) {
         // Only the factory's owner or owner's proxy,
         // or the lootbox can have supply
         return 0;
       }
-      tradableAddress = nftAddress;
-      tokenId = _optionId + 1;
+      // The pre-minted balance belongs to the address that minted this contract
+      uint256 tokenId = _optionId + 1;
+      ERC1155Tradable lootBox = ERC1155Tradable(nftAddress);
+      uint256 currentSupply = lootBox.balanceOf(owner(), tokenId);
+      return currentSupply;
     } else {
       if (!_isOwnerOrProxy(_owner)) {
         // Only the factory owner or owner's proxy can have supply
         return 0;
       }
-      tradableAddress = lootBoxAddress;
-      tokenId = (_optionId + 1 - NUM_ITEM_OPTIONS);
+      // We can mint up to a balance of SUPPLY_PER_TOKEN_ID
+      uint256 tokenId = (_optionId + 1 - NUM_ITEM_OPTIONS);
+      ERC1155Tradable lootBox = ERC1155Tradable(lootBoxAddress);
+      uint256 currentSupply = lootBox.totalSupply(tokenId);
+      return SUPPLY_PER_TOKEN_ID.sub(currentSupply);
     }
-    ERC1155Tradable tradable = ERC1155Tradable(tradableAddress);
-    uint256 currentSupply = tradable.totalSupply(tokenId);
-    return SUPPLY_PER_TOKEN_ID.sub(currentSupply);
   }
-
-  //////
-  // Below methods shouldn't need to be overridden or modified
-  //////
 
   function _canMint(
     address _fromAddress,
@@ -193,21 +185,4 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
     ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
     return owner() == _address || address(proxyRegistry.proxies(owner())) == _address;
   }
-
-  // This needs more complex logic that we do not have time for now.
-  /*
-   * @dev: Do we (still) control a pre-minted token allocation?
-   */
-  /*function _tokenHasPremintedAllocation(
-    address _erc1155Address,
-    uint256 _id
-  ) internal view returns (bool) {
-    ERC1155Tradable tradable = ERC1155Tradable(_erc1155Address);
-    uint256 currentSupply = tradable.totalSupply(_id);
-    if (currentSupply == 0) {
-      return true;
-    } else {
-        return tradable.balanceOf(address(this), _id) > 0;
-    }
-    }*/
 }

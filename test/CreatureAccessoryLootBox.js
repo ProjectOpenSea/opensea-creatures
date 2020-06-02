@@ -131,7 +131,11 @@ contract("CreatureAccessoryLootBox", (accounts) => {
       lootBox.address
     );
     await setup.setupAccessory(creatureAccessory, owner);
-    await creatureAccessory.setApprovalForAll(owner, factory.address);
+    await creatureAccessory.setApprovalForAll(
+      factory.address,
+      true,
+      { from: owner }
+    );
     await creatureAccessory.transferOwnership(factory.address);
     await setup.setupAccessoryLootBox(lootBox, factory);
   });
