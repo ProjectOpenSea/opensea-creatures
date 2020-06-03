@@ -193,7 +193,7 @@ def accessory(token_id):
     if token_id >= num_accessories:
         abort(404, description='No such token')
     accessory_name = ACCESSORIES_NAMES[token_id]
-    image_path = 'images/accesory/%s' % ACCESSORIES_IMAGES[token_id]
+    image_path = 'images/accessory/%s' % ACCESSORIES_IMAGES[token_id]
     image_url = _bucket_image(image_path, token_id, 'accessory')
     attributes = []
     _add_attribute(attributes, 'Aqua Boost', ACCESSORIES_ATTS_INT, token_id, display_type='boost_number')
