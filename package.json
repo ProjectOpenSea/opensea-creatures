@@ -4,7 +4,8 @@
   "description": "Starter contracts for an ERC721 project.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "ganache-cli": "ganache-cli -d -p 7545 --gasLimit=10000000",
+    "test": "DEPLOY_ALL=1 truffle test"
   },
   "repository": {
     "type": "git",
