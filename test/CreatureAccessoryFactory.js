@@ -129,7 +129,7 @@ contract("CreatureAccessoryFactory", (accounts) => {
     });
 
     it('should allow owner to mint', async () => {
-      const quantity = toBN(1000);
+      const quantity = toBN(10);
       await myFactory.mint(
         vals.CLASS_COMMON,
         userA,
@@ -146,19 +146,19 @@ contract("CreatureAccessoryFactory", (accounts) => {
       assert.isOk(balanceUserA.eq(quantity));
       // Check that balance is correct
       const balanceOf = await myFactory.balanceOf(owner, vals.CLASS_COMMON);
-      assert.isOk(balanceOf.eq(testVals.MAX_UINT256_BN.sub(quantity)));
+      assert.isOk(balanceOf.eq(toBN(vals.MINT_INITIAL_SUPPLY).sub(quantity)));
       // Check that total supply is correct
       const premintedRemaining = await creatureAccessory.balanceOf(
         owner,
         toTokenId(vals.CLASS_COMMON)
       );
-      assert.isOk(premintedRemaining.eq(toBN(vals.INITIAL_SUPPLY).sub(quantity)));
+      assert.isOk(premintedRemaining.eq(toBN(vals.MINT_INITIAL_SUPPLY).sub(quantity)));
     });
 
     it('should allow proxy to mint', async () => {
       const quantity = toBN(100);
       //FIXME: move all quantities to top level constants
-      const total = toBN(1100);
+      const total = toBN(110);
       await myFactory.mint(
         vals.CLASS_COMMON,
         userA,
@@ -174,13 +174,13 @@ contract("CreatureAccessoryFactory", (accounts) => {
       assert.isOk(balanceUserA.eq(total));
       // Check that balance is correct
       const balanceOf = await myFactory.balanceOf(owner, vals.CLASS_COMMON);
-      assert.isOk(balanceOf.eq(testVals.MAX_UINT256_BN.sub(total)));
+      assert.isOk(balanceOf.eq(toBN(vals.MINT_INITIAL_SUPPLY).sub(total)));
       // Check that total supply is correct
       const premintedRemaining = await creatureAccessory.balanceOf(
         owner,
         toTokenId(vals.CLASS_COMMON)
       );
-      assert.isOk(premintedRemaining.eq(toBN(vals.INITIAL_SUPPLY).sub(total)));
+      assert.isOk(premintedRemaining.eq(toBN(vals.MINT_INITIAL_SUPPLY).sub(total)));
     });
   });
 
