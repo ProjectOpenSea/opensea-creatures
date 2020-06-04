@@ -94,9 +94,7 @@ const compareTokenTotals = (totals, spec, option) => {
       // We want that for the spec, as it is the correct key.
       // But to add one we want a number, so we parse it then add one.
       // Why do we want to add one?
-      // Because due to the internals of the smart contract, the token id
-      // will be one higher than the guarantees index.
-      totals[parseInt(key) + 1] || toBN(0).gte(spec[key]),
+      totals[parseInt(key)] || toBN(0).gte(spec[key]),
       `Mismatch for option ${option} guarantees[${key}]`
     );
   });
@@ -142,11 +140,11 @@ contract("CreatureAccessoryLootBox", (accounts) => {
 
   // Calls _mint()
 
-  describe('#mintForOption()', () => {
+  describe('#mint()', () => {
     it('should work for owner()', async () => {
       const option = toBN(vals.LOOTBOX_OPTION_BASIC);
       const amount = toBN(1);
-      const receipt = await lootBox.mintForOption(
+      const receipt = await lootBox.mint(
         userB,
         option,
         amount,
@@ -159,7 +157,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
         {
           _from: testVals.ADDRESS_ZERO,
           _to: userB,
-          _id: toBN(1), // This should work but doesn't: option.add(toBN(1)),
+          _id: option,
           _amount: amount
         }
       );
@@ -168,7 +166,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     it('should work for proxy', async () => {
       const option = vals.LOOTBOX_OPTION_BASIC;
       const amount = toBN(1);
-      const receipt = await lootBox.mintForOption(
+      const receipt = await lootBox.mint(
           userB,
           option,
           amount,
@@ -190,7 +188,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     it('should not be callable by non-owner() and non-proxy', async () => {
       const amount = toBN(1);
       await truffleAssert.fails(
-        lootBox.mintForOption(
+        lootBox.mint(
           userB,
           vals.LOOTBOX_OPTION_PREMIUM,
           amount,
@@ -205,7 +203,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     it('should not work for invalid option', async () => {
       const amount = toBN(1);
       await truffleAssert.fails(
-        lootBox.mintForOption(
+        lootBox.mint(
           userB,
           vals.NO_SUCH_LOOTBOX_OPTION,
           amount,
@@ -222,10 +220,9 @@ contract("CreatureAccessoryLootBox", (accounts) => {
     it('should mint guaranteed class amounts for each option', async () => {
       for (let i = 0; i < vals.NUM_LOOTBOX_OPTIONS; i++) {
         const option = vals.LOOTBOX_OPTIONS[i];
-        const tokenId = toBN(option).add(toBN(1));
         const amount = toBN(1);
-
-        await lootBox.mintForOption(
+        console.log(i);
+        await lootBox.mint(
           userB,
           option,
           amount,
@@ -233,8 +230,8 @@ contract("CreatureAccessoryLootBox", (accounts) => {
           { from: proxyForOwner }
         );
         const receipt = await lootBox.unpack(
-        // Token IDs are option IDs + 1
-          tokenId,
+          // Token IDs are option IDs
+          option,
           userB,
           amount,
           { from: userB }

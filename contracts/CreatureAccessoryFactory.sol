@@ -105,18 +105,17 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
         _isOwnerOrProxy(msg.sender) || msg.sender == lootBoxAddress,
         "Caller cannot mint accessories"
       );
-      // Option IDs start at 0, Token IDs start at 1
-      uint256 tokenId = _option + 1;
       // Items are pre-mined (by the owner), so transfer them (We are an
       // operator for the owner).
       ERC1155Tradable items = ERC1155Tradable(nftAddress);
-      items.safeTransferFrom(owner(), _toAddress, tokenId, _amount, _data);
+      // Option is used as a token ID here
+      items.safeTransferFrom(owner(), _toAddress, _option, _amount, _data);
     } else if (_option < NUM_OPTIONS) {
       require(_isOwnerOrProxy(msg.sender), "Caller cannot mint boxes");
       uint256 lootBoxOption = _option - NUM_ITEM_OPTIONS;
-      uint256 lootBoxTokenId = lootBoxOption + 1;
       // LootBoxes are not premined, so we need to create or mint them.
-      _createOrMint(lootBoxAddress, _toAddress, lootBoxTokenId, _amount, _data);
+      // lootBoxOption is used as a token ID here.
+      _createOrMint(lootBoxAddress, _toAddress, lootBoxOption, _amount, _data);
     } else {
       revert("Unknown _option");
     }
@@ -154,19 +153,20 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
         return 0;
       }
       // The pre-minted balance belongs to the address that minted this contract
-      uint256 tokenId = _optionId + 1;
       ERC1155Tradable lootBox = ERC1155Tradable(nftAddress);
-      uint256 currentSupply = lootBox.balanceOf(owner(), tokenId);
+      // OptionId is used as a token ID here
+      uint256 currentSupply = lootBox.balanceOf(owner(), _optionId);
       return currentSupply;
     } else {
       if (!_isOwnerOrProxy(_owner)) {
         // Only the factory owner or owner's proxy can have supply
         return 0;
       }
-      // We can mint up to a balance of SUPPLY_PER_TOKEN_ID
-      uint256 tokenId = (_optionId + 1 - NUM_ITEM_OPTIONS);
+      // We explicitly calculate the token ID here
+      uint256 tokenId = (_optionId - NUM_ITEM_OPTIONS);
       ERC1155Tradable lootBox = ERC1155Tradable(lootBoxAddress);
       uint256 currentSupply = lootBox.totalSupply(tokenId);
+      // We can mint up to a balance of SUPPLY_PER_TOKEN_ID
       return SUPPLY_PER_TOKEN_ID.sub(currentSupply);
     }
   }

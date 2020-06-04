@@ -259,9 +259,9 @@ library LootBoxRandomness {
     require(_classId < _state.numClasses, "_class out of range");
     Factory factory = Factory(_state.factoryAddress);
     uint256 tokenId = _pickRandomAvailableTokenIdForClass(_state, _classId, _amount, _owner);
-    uint256 optionId = tokenId - 1;
     // This may mint, create or transfer. We don't handle that here.
-    factory.mint(optionId, _toAddress, _amount, "");
+    // We use tokenId as an option ID here.
+    factory.mint(tokenId, _toAddress, _amount, "");
     return tokenId;
   }
 
@@ -298,8 +298,8 @@ library LootBoxRandomness {
     Factory factory = Factory(_state.factoryAddress);
     for (uint256 i = randIndex; i < randIndex + tokenIds.length; i++) {
       uint256 tokenId = tokenIds[i % tokenIds.length];
-      uint256 optionId = tokenId - 1;
-      if (factory.balanceOf(_owner, optionId) >= _minAmount) {
+      // We use tokenId as an option id here
+      if (factory.balanceOf(_owner, tokenId) >= _minAmount) {
         return tokenId;
      }
     }

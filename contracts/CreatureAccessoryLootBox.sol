@@ -62,37 +62,19 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
   // MAIN FUNCTIONS
   //////
 
-  // Note that we burn the token id but mint the option id.
-
   function unpack(
-    uint256 _tokenId,
+    uint256 _optionId,
     address _toAddress,
     uint256 _amount
   ) external {
     // This will underflow if msg.sender does not own enough tokens.
-    _burn(msg.sender, _tokenId, _amount);
-    uint256 optionId = _tokenId - 1;
+    _burn(msg.sender, _optionId, _amount);
     // Mint nfts contained by LootBox
-    LootBoxRandomness._mint(state, optionId, _toAddress, _amount, "", address(this));
+    LootBoxRandomness._mint(state, _optionId, _toAddress, _amount, "", address(this));
   }
 
   /**
-   *  @dev Mint the *option* id, not a token id.
-   */
-  function mintForOption(
-    address _to,
-    uint256 _optionId,
-    uint256 _amount,
-    bytes memory _data
-  ) public nonReentrant {
-    require(_isOwnerOrProxy(msg.sender), "Lootbox: owner or proxy only");
-    require(_optionId < state.numOptions, "Lootbox: Invalid Option");
-    uint256 optionTokenId = _optionId + 1;
-    _mint(_to, optionTokenId, _amount, _data);
-  }
-
-  /**
-   *  @dev Mint the *token* id, not an option id.
+   *  @dev Mint the token/option id.
    */
   function mint(
     address _to,
@@ -102,8 +84,8 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
   ) public nonReentrant {
     require(_isOwnerOrProxy(msg.sender), "Lootbox: owner or proxy only");
     require(_optionId < state.numOptions, "Lootbox: Invalid Option");
-    uint256 optionTokenId = _optionId + 1;
-    _mint(_to, optionTokenId, _amount, _data);
+    // Option ID is used as a token ID here
+    _mint(_to, _optionId, _amount, _data);
   }
 
   /**

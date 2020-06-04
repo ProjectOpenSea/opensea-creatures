@@ -29,7 +29,7 @@ const toBN = web3.utils.toBN;
 
 /* Utilities */
 
-const toTokenId = optionId => optionId + 1;
+const toTokenId = optionId => optionId;
 
 
 contract("CreatureAccessoryFactory", (accounts) => {
