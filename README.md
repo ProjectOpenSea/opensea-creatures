@@ -74,7 +74,6 @@ If you're running a modified version of `sell.js` and not getting expected behav
 # About OpenSea Creature Accessories
 
 This is a sample ERC-1155 contract for the purposes of demonstrating integration with the [OpenSea](https://opensea.io) marketplace for crypto collectibles. We also include:
-- A script for minting items.
 - A factory contract for making sell orders for unminted items (allowing for **gas-free and mint-free presales**).
 - A configurable lootbox contract for selling randomized collections of ERC-1155 items.
 
@@ -152,19 +151,6 @@ You can also debug just the compile step by running `yarn truffle compile`.
 
 #### It doesn't deploy anything!
 This is often due to the truffle-hdwallet provider not being able to connect. Go to infura.io and create a new Infura project. Use your "project ID" as your new `INFURA_KEY` and make sure you export that command-line variable above.
-
-### Minting tokens.
-
-After deploying to the Rinkeby network, there will be a contract on Rinkeby that will be viewable on [Rinkeby Etherscan](https://rinkeby.etherscan.io). For example, here is a [recently deployed contract](https://rinkeby.etherscan.io/address/0xeba05c5521a3b81e23d15ae9b2d07524bc453561). You should set this contract address and the address of your Metamask account as environment variables when running the minting script:
-
-```
-export OWNER_ADDRESS="<my_address>"
-export NFT_CONTRACT_ADDRESS="<deployed_contract_address>"
-export NETWORK="rinkeby"
-node scripts/mint.js
-```
-
-Note: When running the minting script on mainnet, your environment variable needs to be set to `mainnet` not `live`.  The environment variable affects the Infura URL in the minting script, not truffle. When you deploy, you're using truffle and you need to give truffle an argument that corresponds to the naming in truffle.js (`--network live`).  But when you mint, you're relying on the environment variable you set to build the URL (https://github.com/ProjectOpenSea/opensea-creatures/blob/master/scripts/mint.js#L54), so you need to use the term that makes Infura happy (`mainnet`).  Truffle and Infura use the same terminology for Rinkeby, but different terminology for mainnet.  If you start your minting script, but nothing happens, double check your environment variables.
 
 ### ERC1155 Implementation
 

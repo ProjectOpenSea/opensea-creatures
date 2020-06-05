@@ -146,8 +146,8 @@ contract CreatureAccessoryFactory is IFactory, Ownable, ReentrancyGuard {
     address _owner,
     uint256 _optionId
   ) public view returns (uint256) {
-    if ( _optionId < NUM_ITEM_OPTIONS) {
-      if ((!_isOwnerOrProxy(_owner)) && _owner != lootBoxAddress) {
+    if (_optionId < NUM_ITEM_OPTIONS) {
+      if (!_isOwnerOrProxy(_owner) && _owner != lootBoxAddress) {
         // Only the factory's owner or owner's proxy,
         // or the lootbox can have supply
         return 0;

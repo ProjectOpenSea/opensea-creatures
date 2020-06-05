@@ -22,9 +22,6 @@ const DEPLOY_CREATURES_SALE = process.env.DEPLOY_CREATURES_SALE || DEPLOY_ALL;
 // This is to keep the historical behavior of this migration.
 const DEPLOY_CREATURES = process.env.DEPLOY_CREATURES || DEPLOY_CREATURES_SALE || DEPLOY_ALL || (! DEPLOY_ACCESSORIES);
 
-// Set if you want to create your own collectible
-const ACCESSORIES_NFT_ADDRESS_TO_USE = null; // or e.g. Enjin: '0xfaafdc07907ff5120a76b34b731b278c38d6043c'
-
 module.exports = async (deployer, network, addresses) => {
   // OpenSea proxy registry addresses for rinkeby and mainnet.
   let proxyRegistryAddress = "";

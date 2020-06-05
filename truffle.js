@@ -1,14 +1,15 @@
-const HDWalletProvider = require("truffle-hdwallet-provider");
-const MNEMONIC = process.env.MNEMONIC
-const INFURA_KEY = process.env.INFURA_KEY
+const HDWalletProvider = require("@truffle/hdwallet-provider");
+
+const MNEMONIC = process.env.MNEMONIC;
+const INFURA_KEY = process.env.INFURA_KEY;
 
 const needsInfura = process.env.npm_config_argv &&
       (process.env.npm_config_argv.includes('rinkeby') ||
-       process.env.npm_config_argv.includes('live'))
+       process.env.npm_config_argv.includes('live'));
 
 if ((!MNEMONIC || !INFURA_KEY) && needsInfura) {
-  console.error('Please set a mnemonic and infura key.')
-  process.exit(0)
+  console.error('Please set a mnemonic and infura key.');
+  process.exit(0);
 }
 
 module.exports = {

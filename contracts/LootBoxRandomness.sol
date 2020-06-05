@@ -1,7 +1,8 @@
 pragma solidity ^0.5.11;
 
-// Eek!
+
 import "multi-token-standard/contracts/utils/SafeMath.sol";
+
 
 /*
   DESIGN NOTES:
@@ -25,10 +26,12 @@ import "multi-token-standard/contracts/utils/SafeMath.sol";
     CreatureAccessoryFactory.
  */
 
+
 contract Factory {
     function mint(uint256 _optionId, address _toAddress, uint256 _amount, bytes calldata _data) external;
     function balanceOf(address _owner, uint256 _optionId) public view returns (uint256);
 }
+
 
 /**
  * @title LootBoxRandomness
