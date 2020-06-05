@@ -23,6 +23,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
   address proxyRegistryAddress;
   mapping (uint256 => address) public creators;
   mapping (uint256 => uint256) public tokenSupply;
+  mapping (uint256 => string) customUri;
   // Contract name
   string public name;
   // Contract symbol
@@ -58,10 +59,16 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
     uint256 _id
   ) public view returns (string memory) {
     require(_exists(_id), "ERC1155Tradable#uri: NONEXISTENT_TOKEN");
-    return Strings.strConcat(
-      baseMetadataURI,
-      Strings.uint2str(_id)
-    );
+    // We have to convert string to bytes to check for existence
+    bytes memory customUriBytes = bytes(customUri[_id]);
+    if (customUriBytes.length > 0) {
+        return customUri[_id];
+    } else {
+        return Strings.strConcat(
+            baseMetadataURI,
+            Strings.uint2str(_id)
+        );
+    }
   }
 
   /**
@@ -86,6 +93,19 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
   }
 
   /**
+   * @dev Will update the base URI for the token
+   * @param _tokenId The token to upddate. msg.sender must be its creator.
+   * @param _newURI New URI for the token.
+   */
+  function setCustomURI(
+    uint256 _tokenId,
+    string memory _newURI
+  ) public creatorOnly(_tokenId) {
+    customUri[_tokenId] = _newURI;
+    emit URI(_newURI, _tokenId);
+  }
+
+  /**
     * @dev Creates a new token type and assigns _initialSupply to an address
     * NOTE: remove onlyOwner if you want third parties to create new tokens on
     *       your contract (which may change your IDs)
@@ -93,7 +113,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
     *       creating NFTs by setting the id's high bits with the method
     *       described in ERC1155 or to use ids representing values other than
     *       successive small integers. If you wish to create ids as successive
-    *       small integers you can either subclass this class to cound onchain
+    *       small integers you can either subclass this class to count onchain
     *       or maintain the offchain cache of identifiers recommended in
     *       ERC1155 and calculate successive ids from that.
     * @param _initialOwner address of the first owner of the token
@@ -114,6 +134,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
     creators[_id] = msg.sender;
 
     if (bytes(_uri).length > 0) {
+      customUri[_id] = _uri;
       emit URI(_uri, _id);
     }
 
