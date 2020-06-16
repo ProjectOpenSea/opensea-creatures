@@ -35,7 +35,7 @@ contract ERC721Tradable is ERC721Full, Ownable {
   }
 
   /**
-    * @dev calculates the next token ID based on value of _currentTokenId 
+    * @dev calculates the next token ID based on value of _currentTokenId
     * @return uint256 for the next token ID
     */
   function _getNextTokenId() private view returns (uint256) {
@@ -43,7 +43,7 @@ contract ERC721Tradable is ERC721Full, Ownable {
   }
 
   /**
-    * @dev increments the value of _currentTokenId 
+    * @dev increments the value of _currentTokenId
     */
   function _incrementTokenId() private  {
     _currentTokenId++;
