@@ -11,10 +11,10 @@ contract ProxyRegistry {
 }
 
 /**
- * @title TradeableERC721Token
- * TradeableERC721Token - ERC721 contract that whitelists a trading address, and has minting functionality.
+ * @title ERC721Tradable
+ * ERC721Tradable - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
-contract TradeableERC721Token is ERC721Full, Ownable {
+contract ERC721Tradable is ERC721Full, Ownable {
   using Strings for string;
 
   address proxyRegistryAddress;

@@ -1,17 +1,22 @@
-const HDWalletProvider = require("truffle-hdwallet-provider")
-const MNEMONIC = process.env.MNEMONIC
-const INFURA_KEY = process.env.INFURA_KEY
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 
-if (!MNEMONIC || !INFURA_KEY) {
-  console.error("Please set a mnemonic and infura key.")
-  return
+const MNEMONIC = process.env.MNEMONIC;
+const INFURA_KEY = process.env.INFURA_KEY;
+
+const needsInfura = process.env.npm_config_argv &&
+      (process.env.npm_config_argv.includes('rinkeby') ||
+       process.env.npm_config_argv.includes('live'));
+
+if ((!MNEMONIC || !INFURA_KEY) && needsInfura) {
+  console.error('Please set a mnemonic and infura key.');
+  process.exit(0);
 }
 
 module.exports = {
   networks: {
     development: {
       host: "localhost",
-      port: 8545,
+      port: 7545,
       gas: 4600000,
       network_id: "*" // Match any network id
     },
@@ -20,10 +25,10 @@ module.exports = {
         return new HDWalletProvider(
           MNEMONIC,
           "https://rinkeby.infura.io/v3/" + INFURA_KEY
-        )
+        );
       },
       network_id: "*",
-      gas: 4000000
+      networkCheckTimeout: 10000000
     },
     live: {
       network_id: 1,
@@ -31,7 +36,7 @@ module.exports = {
         return new HDWalletProvider(
           MNEMONIC,
           "https://mainnet.infura.io/v3/" + INFURA_KEY
-        )
+        );
       },
       gas: 4000000,
       gasPrice: 5000000000
@@ -49,4 +54,4 @@ module.exports = {
       version: "^0.5.0"
     }
   }
-}
+};
