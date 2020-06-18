@@ -164,4 +164,4 @@ In one terminal window, run:
 
 Once Ganache has started, run the following in another terminal window:
 
-    DEPLOY_ALL=1 truffle test
+    yarn run test

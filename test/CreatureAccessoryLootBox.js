@@ -221,7 +221,7 @@ contract("CreatureAccessoryLootBox", (accounts) => {
       for (let i = 0; i < vals.NUM_LOOTBOX_OPTIONS; i++) {
         const option = vals.LOOTBOX_OPTIONS[i];
         const amount = toBN(1);
-        console.log(i);
+        //console.log(i);
         await lootBox.mint(
           userB,
           option,
