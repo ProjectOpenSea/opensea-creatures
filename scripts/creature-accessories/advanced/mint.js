@@ -1,4 +1,4 @@
-const HDWalletProvider = require("truffle-hdwallet-provider")
+const HDWalletProvider = require("@truffle/hdwallet-provider")
 const web3 = require('web3')
 const MNEMONIC = process.env.MNEMONIC
 const INFURA_KEY = process.env.INFURA_KEY
@@ -41,7 +41,8 @@ const LOOTBOX_ABI = [{
  * For now, this script just opens a lootbox.
  */
 async function main() {
-    const provider = new HDWalletProvider(MNEMONIC, `https://${NETWORK}.infura.io/v3/${INFURA_KEY}`)
+    const network = NETWORK === 'mainnet' || 'live' ? 'mainnet' : 'rinkeby'
+    const provider = new HDWalletProvider(MNEMONIC, `https://${network}.infura.io/v3/${INFURA_KEY}`)
     const web3Instance = new web3(
         provider
     )

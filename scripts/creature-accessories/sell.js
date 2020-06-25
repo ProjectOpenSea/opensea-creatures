@@ -26,8 +26,9 @@ if (!NFT_CONTRACT_ADDRESS) {
 const BASE_DERIVATION_PATH = `44'/60'/0'/0`
 
 const mnemonicWalletSubprovider = new MnemonicWalletSubprovider({ mnemonic: MNEMONIC, baseDerivationPath: BASE_DERIVATION_PATH})
+const network = NETWORK === 'mainnet' || 'live' ? 'mainnet' : 'rinkeby'
 const infuraRpcSubprovider = new RPCSubprovider({
-    rpcUrl: 'https://' + NETWORK + '.infura.io/v3/' + INFURA_KEY,
+    rpcUrl: 'https://' + network + '.infura.io/v3/' + INFURA_KEY,
 })
 
 const providerEngine = new Web3ProviderEngine()
@@ -36,7 +37,7 @@ providerEngine.addProvider(infuraRpcSubprovider)
 providerEngine.start();
 
 const seaport = new OpenSeaPort(providerEngine, {
-    networkName: NETWORK === 'mainnet' ? Network.Main : Network.Rinkeby,
+    networkName: NETWORK === 'mainnet' || 'live' ? Network.Main : Network.Rinkeby,
     apiKey: API_KEY
 }, (arg) => console.log(arg))
 
@@ -74,7 +75,7 @@ async function main() {
 
     // Example: multiple item sale for ERC20 token
     console.log("Selling multiple items for an ERC20 token (WETH)")
-    const wethAddress = NETWORK == 'mainnet' ? '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' : "0xc778417e063141139fce010982780140aa0cd5ab"
+    const wethAddress = NETWORK == 'mainnet' || 'live' ? '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' : "0xc778417e063141139fce010982780140aa0cd5ab"
     const englishAuctionSellOrder = await seaport.createSellOrder({
         asset: {
             tokenId: "3",
