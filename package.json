@@ -26,7 +26,7 @@
     "truffle": "^5.1.30",
     "truffle-assertions": "^0.9.2",
     "truffle-flattener": "^1.4.2",
-    "truffle-hdwallet-provider": "1.0.5",
+    "truffle-hdwallet-provider": "^1.0.0-web3one.0",
     "web3": "^1.0.0-beta.34"
   },
   "engines": {

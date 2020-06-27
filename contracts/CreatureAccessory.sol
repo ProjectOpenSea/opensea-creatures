@@ -15,7 +15,7 @@ contract CreatureAccessory is ERC1155Tradable {
     _setBaseMetadataURI("https://creatures-api.opensea.io/api/accessory/");
   }
 
-  function contractURI() public view returns (string memory) {
+  function contractURI() public pure returns (string memory) {
       return "https://creatures-api.opensea.io/contract/opensea-erc1155";
   }
 }

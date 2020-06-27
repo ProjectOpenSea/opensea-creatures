@@ -33,7 +33,7 @@ contract CreatureLootBox is ERC721Tradable {
         _burn(msg.sender, _tokenId);
     }
 
-    function baseTokenURI() public view returns (string memory) {
+    function baseTokenURI() public pure returns (string memory) {
         return "creatures-api.opensea.io/api/box/";
     }
 
