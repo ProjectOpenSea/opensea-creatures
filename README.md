@@ -1,10 +1,16 @@
-## OpenSeaCreatures ERC721 contracts
+## OpenSea Creatures - Starter ERC721, ERC1155, and factory contracts
 
-### About OpenSea Creatures.
+What's included:
 
-This is a very simple sample ERC721 for the purposes of demonstrating integration with the [OpenSea](https://opensea.io) marketplace. We include a script for minting the items.
+### Sample ERC721/ERC1155 Contracts
+
+This includes a very simple sample ERC721 / ERC1155 for the purposes of demonstrating integration with the [OpenSea](https://opensea.io) marketplace. We include a script for minting the items.
 
 Additionally, this contract whitelists the proxy accounts of OpenSea users so that they are automatically able to trade the ERC721 item on OpenSea (without having to pay gas for an additional approval). On OpenSea, each user has a "proxy" account that they control, and is ultimately called by the exchange contracts to trade their items. (Note that this addition does not mean that OpenSea itself has access to the items, simply that the users can list them more easily if they wish to do so)
+
+### Factory Contracts
+
+In addition to these template 721/1155 contracts, we provide sample factory contracts for running gas-free presales of items that haven't been minted yet. See https://docs.opensea.io/docs/opensea-initial-item-sale-tutorial for more info.
 
 ## Requirements
 
@@ -15,11 +21,12 @@ Either make sure you're running a version of node compliant with the `engines` r
 ## Installation
 
 Run
+
 ```bash
-npm install
+yarn
 ```
 
-If you run into an error while building the dependencies and you're on a Mac, run the code below, remove your `node_modules` folder, and do a fresh `npm install`:
+If you run into an error while building the dependencies and you're on a Mac, run the code below, remove your `node_modules` folder, and do a fresh `yarn install`:
 
 ```bash
 xcode-select --install # Install Command Line Tools if you haven't already.
@@ -55,27 +62,29 @@ node scripts/mint.js
 
 If you're running a modified version of `sell.js` and not getting expected behavior, check the following:
 
-* Is the `expirationTime` in future?  If no, change it to a time in the future.
+- Is the `expirationTime` in future? If no, change it to a time in the future.
 
-* Is the `expirationTime` a fractional second?  If yes, round the listing time to the nearest second.
+- Is the `expirationTime` a fractional second? If yes, round the listing time to the nearest second.
 
-* Are the input addresses all strings? If no, convert them to strings.
+- Are the input addresses all strings? If no, convert them to strings.
 
-* Are the input addresses checksummed?  You might need to use the checksummed version of the address.
+- Are the input addresses checksummed? You might need to use the checksummed version of the address.
 
-* Is your computer's internal clock accurate? If no, try enabling automatic clock adjustment locally or following [this tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html) to update an Amazon EC2 instance.
+- Is your computer's internal clock accurate? If no, try enabling automatic clock adjustment locally or following [this tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html) to update an Amazon EC2 instance.
 
-* Do you have any conflicts that result from globally installed node packages?  If yes, try `npm uninstall -g truffle; npm install -g truffle@5.0.37`
+- Do you have any conflicts that result from globally installed node packages? If yes, try `yarn remove -g truffle; yarn`
 
-* Are you running a version of node compliant with the `engines` requirement in `package.json`?  If no, try `nvm use 8.11.2; rm -rf node_modules; npm i`
+- Are you running a version of node compliant with the `engines` requirement in `package.json`? If no, try `nvm use; rm -rf node_modules; yarn`
 
 # About OpenSea Creature Accessories
 
 This is a sample ERC-1155 contract for the purposes of demonstrating integration with the [OpenSea](https://opensea.io) marketplace for crypto collectibles. We also include:
+
 - A factory contract for making sell orders for unminted items (allowing for **gas-free and mint-free presales**).
 - A configurable lootbox contract for selling randomized collections of ERC-1155 items.
 
 On top of the features from the OpenSea ERC721 sample contracts above, ERC1155
+
 - supports multiple creators per contract, where only the creator is able to mint more copies
 - supports pre-minted items for the lootbox to choose from
 
@@ -106,6 +115,7 @@ Either make sure you're running a version of node compliant with the `engines` r
 ## Installation
 
 Run
+
 ```bash
 yarn
 ```
@@ -143,11 +153,13 @@ To load all your metadata on your items at once, visit [https://opensea.io/get-l
 ### Troubleshooting
 
 #### It doesn't compile!
+
 Install truffle locally: `yarn add truffle`. Then run `yarn truffle migrate ...`.
 
 You can also debug just the compile step by running `yarn truffle compile`.
 
 #### It doesn't deploy anything!
+
 This is often due to the truffle-hdwallet provider not being able to connect. Go to infura.io and create a new Infura project. Use your "project ID" as your new `INFURA_KEY` and make sure you export that command-line variable above.
 
 ### ERC1155 Implementation
