@@ -28,8 +28,8 @@ module.exports = {
           "https://rinkeby.infura.io/v3/" + INFURA_KEY
         );
       },
+      gas: 5000000,
       network_id: "*",
-      networkCheckTimeout: 10000000,
     },
     live: {
       network_id: 1,
@@ -39,7 +39,7 @@ module.exports = {
           "https://mainnet.infura.io/v3/" + INFURA_KEY
         );
       },
-      gas: 4000000,
+      gas: 5000000,
       gasPrice: 5000000000,
     },
   },
