@@ -1,7 +1,7 @@
 {
-  "name": "erc721-starter-contracts",
+  "name": "opensea-creatures",
   "version": "1.0.0",
-  "description": "Starter contracts for an ERC721 project.",
+  "description": "OpenSea's smart contracts, including ERC721 templates, factories, and the storefront builder.",
   "main": "index.js",
   "scripts": {
     "ganache-cli": "ganache-cli -d -p 7545 --gasLimit=10000000",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ProjectOpenSea/erc721-starter-contracts.git"
+    "url": "git+https://github.com/ProjectOpenSea/opensea-creatures.git"
   },
-  "author": "devin.finzer@opensea.io",
+  "author": "support@opensea.io",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ProjectOpenSea/erc721-starter-contracts/issues"
+    "url": "https://github.com/ProjectOpenSea/opensea-creatures/issues"
   },
-  "homepage": "https://github.com/ProjectOpenSea/erc721-starter-contracts#readme",
+  "homepage": "https://github.com/ProjectOpenSea/opensea-creatures#readme",
   "dependencies": {
     "@0x/subproviders": "^2.1.4",
     "eth-gas-reporter": "^0.2.17",
@@ -30,8 +30,8 @@
     "web3": "^1.0.0-beta.34"
   },
   "engines": {
-    "node": "8.11.x",
-    "npm": "5.6.x"
+    "node": "12.18.x",
+    "yarn": "1.22.4"
   },
   "devDependencies": {
     "eslint": "^6.8.0"
