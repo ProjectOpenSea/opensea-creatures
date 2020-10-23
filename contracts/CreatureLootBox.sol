@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./ERC721Tradable.sol";
 import "./Creature.sol";
-import "./Factory.sol";
+import "./IFactoryERC721.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
@@ -15,7 +15,10 @@ contract CreatureLootBox is ERC721Tradable {
     uint256 OPTION_ID = 0;
     address factoryAddress;
 
-    constructor(address _proxyRegistryAddress, address _factoryAddress) ERC721Tradable("CreatureLootBox", "LOOTBOX", _proxyRegistryAddress) public {
+    constructor(address _proxyRegistryAddress, address _factoryAddress)
+        public
+        ERC721Tradable("CreatureLootBox", "LOOTBOX", _proxyRegistryAddress)
+    {
         factoryAddress = _factoryAddress;
     }
 
@@ -25,7 +28,7 @@ contract CreatureLootBox is ERC721Tradable {
         // Insert custom logic for configuring the item here.
         for (uint256 i = 0; i < NUM_CREATURES_PER_BOX; i++) {
             // Mint the ERC721 item(s).
-            Factory factory = Factory(factoryAddress);
+            FactoryERC721 factory = FactoryERC721(factoryAddress);
             factory.mint(OPTION_ID, msg.sender);
         }
 
@@ -33,8 +36,8 @@ contract CreatureLootBox is ERC721Tradable {
         _burn(msg.sender, _tokenId);
     }
 
-    function baseTokenURI() public view returns (string memory) {
-        return "creatures-api.opensea.io/api/box/";
+    function baseTokenURI() public pure returns (string memory) {
+        return "https://creatures-api.opensea.io/api/box/";
     }
 
     function itemsPerLootbox() public view returns (uint256) {
