@@ -38,11 +38,12 @@ sudo npm explore npm -g -- npm install node-gyp@latest # Update node-gyp
 
 ### Deploying to the Rinkeby network.
 
-1. You'll need to sign up for [Infura](https://infura.io). and get an API key.
+1. To access a Rinkeby testnet node, you'll need to sign up for [Alchemy](https://dashboard.alchemyapi.io/signup?referral=affiliate:e535c3c3-9bc4-428f-8e27-4b70aa2e8ca5) and get a free API key. Click "View Key" and then copy the part of the URL after `v2/`.
+   a. You can use [Infura](https://infura.io) if you want as well. Just change `ALCHEMY_KEY` below to `INFURA_KEY`.
 2. Using your API key and the mnemonic for your Metamask wallet (make sure you're using a Metamask seed phrase that you're comfortable using for testing purposes), run:
 
 ```
-export INFURA_KEY="<your_infura_project_id>"
+export ALCHEMY_KEY="<your_alchemy_project_id>"
 export MNEMONIC="<metmask_mnemonic>"
 DEPLOY_CREATURES_SALE=1 yarn truffle deploy --network rinkeby
 ```
@@ -124,12 +125,11 @@ yarn
 
 ### Deploying to the Rinkeby network.
 
-1. You'll need to sign up for [Infura](https://infura.io). and get an API key.
-2. You'll need Rinkeby ether to pay for the gas to deploy your contract. Visit https://faucet.rinkeby.io/ to get some.
-3. Using your API key and the mnemonic for your MetaMask wallet (make sure you're using a MetaMask seed phrase that you're comfortable using for testing purposes), run:
+1. Follow the steps above to get a Rinkeby node API key
+2. Using your API key and the mnemonic for your MetaMask wallet (make sure you're using a MetaMask seed phrase that you're comfortable using for testing purposes), run:
 
 ```
-export INFURA_KEY="<infura_key>"
+export ALCHEMY_KEY="<alchemy_project_id>" # or you can use INFURA_KEY
 export MNEMONIC="<metmask_mnemonic>"
 DEPLOY_ACCESSORIES_SALE=1 yarn truffle migrate --network rinkeby
 ```
@@ -160,7 +160,7 @@ You can also debug just the compile step by running `yarn truffle compile`.
 
 #### It doesn't deploy anything!
 
-This is often due to the truffle-hdwallet provider not being able to connect. Go to infura.io and create a new Infura project. Use your "project ID" as your new `INFURA_KEY` and make sure you export that command-line variable above.
+This is often due to the truffle-hdwallet provider not being able to connect. Go to your [Alchemy Dashboard](https://dashboard.alchemyapi.io/signup?referral=affiliate:e535c3c3-9bc4-428f-8e27-4b70aa2e8ca5) (or infura.io) and create a new project. Use your "project ID" as your new `ALCHEMY_KEY` and make sure you export that command-line variable above.
 
 ### ERC1155 Implementation
 
