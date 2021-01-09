@@ -54,7 +54,7 @@ After deploying to the Rinkeby network, there will be a contract on Rinkeby that
 
 ```
 export OWNER_ADDRESS="<my_address>"
-export NFT_CONTRACT_ADDRESS="<deployed_contract_address>"
+export FACTORY_CONTRACT_ADDRESS="<deployed_factory_address>"
 export NETWORK="rinkeby"
 node scripts/mint.js
 ```
