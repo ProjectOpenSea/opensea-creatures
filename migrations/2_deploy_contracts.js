@@ -72,10 +72,6 @@ module.exports = async (deployer, network, addresses) => {
     );
     const accessories = await CreatureAccessory.deployed();
     const factory = await CreatureAccessoryFactory.deployed();
-    await accessories.setApprovalForAll(
-      addresses[0],
-      CreatureAccessoryFactory.address
-    );
     await accessories.transferOwnership(
       CreatureAccessoryFactory.address
     );
