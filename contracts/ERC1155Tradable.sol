@@ -1,10 +1,12 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import 'multi-token-standard/contracts/tokens/ERC1155/ERC1155.sol';
-import 'multi-token-standard/contracts/tokens/ERC1155/ERC1155Metadata.sol';
-import 'multi-token-standard/contracts/tokens/ERC1155/ERC1155MintBurn.sol';
-import "./Strings.sol";
+pragma solidity ^0.8.0;
+
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
+import "openzeppelin-solidity/contracts/token/ERC1155/ERC1155.sol";
+import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/utils/Strings.sol";
+
 
 contract OwnableDelegateProxy { }
 
@@ -17,8 +19,9 @@ contract ProxyRegistry {
  * ERC1155Tradable - ERC1155 contract that whitelists an operator address, has create and mint functionality, and supports useful standards from OpenZeppelin,
   like _exists(), name(), symbol(), and totalSupply()
  */
-contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
+contract ERC1155Tradable is ERC1155, Ownable {
   using Strings for string;
+  using SafeMath for uint256;
 
   address proxyRegistryAddress;
   mapping (uint256 => address) public creators;
@@ -41,15 +44,16 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
    * @dev Require msg.sender to own more than 0 of the token id
    */
   modifier ownersOnly(uint256 _id) {
-    require(balances[msg.sender][_id] > 0, "ERC1155Tradable#ownersOnly: ONLY_OWNERS_ALLOWED");
+    require(balanceOf(msg.sender, _id) > 0, "ERC1155Tradable#ownersOnly: ONLY_OWNERS_ALLOWED");
     _;
   }
 
   constructor(
     string memory _name,
     string memory _symbol,
+    string memory _uri,
     address _proxyRegistryAddress
-  ) public {
+  ) ERC1155(_uri) {
     name = _name;
     symbol = _symbol;
     proxyRegistryAddress = _proxyRegistryAddress;
@@ -57,17 +61,14 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
 
   function uri(
     uint256 _id
-  ) public view returns (string memory) {
+  ) override public view returns (string memory) {
     require(_exists(_id), "ERC1155Tradable#uri: NONEXISTENT_TOKEN");
     // We have to convert string to bytes to check for existence
     bytes memory customUriBytes = bytes(customUri[_id]);
     if (customUriBytes.length > 0) {
         return customUri[_id];
     } else {
-        return Strings.strConcat(
-            baseMetadataURI,
-            Strings.uint2str(_id)
-        );
+        return super.uri(_id);
     }
   }
 
@@ -83,13 +84,15 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
   }
 
   /**
-   * @dev Will update the base URL of token's URI
-   * @param _newBaseMetadataURI New base URL of token's URI
+   * @dev Sets a new URI for all token types, by relying on the token type ID
+    * substitution mechanism
+    * https://eips.ethereum.org/EIPS/eip-1155#metadata[defined in the EIP].
+   * @param _newURI New URI for all tokens
    */
-  function setBaseMetadataURI(
-    string memory _newBaseMetadataURI
+  function setURI(
+    string memory _newURI
   ) public onlyOwner {
-    _setBaseMetadataURI(_newBaseMetadataURI);
+    _setURI(_newURI);
   }
 
   /**
@@ -156,7 +159,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
     uint256 _id,
     uint256 _quantity,
     bytes memory _data
-  ) public creatorOnly(_id) {
+  ) virtual public creatorOnly(_id) {
     _mint(_to, _id, _quantity, _data);
     tokenSupply[_id] = tokenSupply[_id].add(_quantity);
   }
@@ -180,7 +183,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
       uint256 quantity = _quantities[i];
       tokenSupply[_id] = tokenSupply[_id].add(quantity);
     }
-    _batchMint(_to, _ids, _quantities, _data);
+    _mintBatch(_to, _ids, _quantities, _data);
   }
 
   /**
@@ -205,7 +208,7 @@ contract ERC1155Tradable is ERC1155, ERC1155MintBurn, ERC1155Metadata, Ownable {
   function isApprovedForAll(
     address _owner,
     address _operator
-  ) public view returns (bool isOperator) {
+  ) override public view returns (bool isOperator) {
     // Whitelist OpenSea proxy contract for easy trading.
     ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
     if (address(proxyRegistry.proxies(_owner)) == _operator) {

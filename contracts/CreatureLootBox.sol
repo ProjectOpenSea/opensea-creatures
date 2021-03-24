@@ -1,9 +1,11 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
 
 import "./ERC721Tradable.sol";
 import "./Creature.sol";
 import "./IFactoryERC721.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
 
 /**
  * @title CreatureLootBox
@@ -16,7 +18,6 @@ contract CreatureLootBox is ERC721Tradable {
     address factoryAddress;
 
     constructor(address _proxyRegistryAddress, address _factoryAddress)
-        public
         ERC721Tradable("CreatureLootBox", "LOOTBOX", _proxyRegistryAddress)
     {
         factoryAddress = _factoryAddress;
@@ -33,10 +34,10 @@ contract CreatureLootBox is ERC721Tradable {
         }
 
         // Burn the presale item.
-        _burn(msg.sender, _tokenId);
+        _burn(_tokenId);
     }
 
-    function baseTokenURI() public pure returns (string memory) {
+    function baseTokenURI() override public pure returns (string memory) {
         return "https://creatures-api.opensea.io/api/box/";
     }
 
