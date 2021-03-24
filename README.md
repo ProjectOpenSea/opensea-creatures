@@ -132,7 +132,8 @@ yarn
 ```
 export ALCHEMY_KEY="<alchemy_project_id>" # or you can use INFURA_KEY
 export MNEMONIC="<metmask_mnemonic>"
-DEPLOY_ACCESSORIES_SALE=1 yarn truffle migrate --network rinkeby
+export NETWORK="rinkeby"
+truffle deploy --network rinkeby
 ```
 
 ### Deploying to the mainnet Ethereum network.
