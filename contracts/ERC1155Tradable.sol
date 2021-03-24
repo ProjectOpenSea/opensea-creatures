@@ -244,11 +244,4 @@ contract ERC1155Tradable is ERC1155, Ownable {
   ) external view returns (bool) {
     return _exists(_id);
   }
-
-  function _isOwnerOrProxy(
-    address _address
-  ) internal view returns (bool) {
-    ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
-    return owner() == _address || address(proxyRegistry.proxies(owner())) == _address;
-  }
 }
