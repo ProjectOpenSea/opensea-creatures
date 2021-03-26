@@ -1,12 +1,8 @@
-// SPDX-License-Identifier: MIT
+pragma solidity ^0.5.0;
 
-pragma solidity ^0.8.0;
-
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-solidity/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
-import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/utils/Strings.sol";
+import "openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./Strings.sol";
 
 contract OwnableDelegateProxy {}
 
@@ -18,9 +14,8 @@ contract ProxyRegistry {
  * @title ERC721Tradable
  * ERC721Tradable - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
-abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
+contract ERC721Tradable is ERC721Full, Ownable {
     using Strings for string;
-    using SafeMath for uint256;
 
     address proxyRegistryAddress;
     uint256 private _currentTokenId = 0;
@@ -29,7 +24,7 @@ abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
         string memory _name,
         string memory _symbol,
         address _proxyRegistryAddress
-    ) ERC721(_name, _symbol) {
+    ) public ERC721Full(_name, _symbol) {
         proxyRegistryAddress = _proxyRegistryAddress;
     }
 
@@ -58,17 +53,18 @@ abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
         _currentTokenId++;
     }
 
-    function baseTokenURI() virtual public pure returns (string memory);
+    function baseTokenURI() public pure returns (string memory) {
+        return "";
+    }
 
-    function tokenURI(uint256 _tokenId) override public pure returns (string memory) {
-        return string(abi.encodePacked(baseTokenURI(), Strings.toString(_tokenId)));
+    function tokenURI(uint256 _tokenId) external view returns (string memory) {
+        return Strings.strConcat(baseTokenURI(), Strings.uint2str(_tokenId));
     }
 
     /**
      * Override isApprovedForAll to whitelist user's OpenSea proxy accounts to enable gas-less listings.
      */
     function isApprovedForAll(address owner, address operator)
-        override
         public
         view
         returns (bool)

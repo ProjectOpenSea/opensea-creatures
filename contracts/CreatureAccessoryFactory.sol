@@ -1,12 +1,10 @@
-// SPDX-License-Identifier: MIT
+pragma solidity ^0.5.11;
 
-pragma solidity ^0.8.0;
-
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
-import "openzeppelin-solidity/contracts/security/ReentrancyGuard.sol";
-import "openzeppelin-solidity/contracts/utils/Strings.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "./IFactoryERC1155.sol";
 import "./ERC1155Tradable.sol";
+import "./Strings.sol";
 
 /**
  * @title CreatureAccessoryFactory
@@ -24,7 +22,7 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
         internal constant baseMetadataURI = "https://creatures-api.opensea.io/api/";
     uint256 constant UINT256_MAX = ~uint256(0);
 
-    /*
+    /**
      * Optionally set this to a small integer to enforce limited existence per option/token ID
      * (Otherwise rely on sell orders on OpenSea, which can only be made by the factory owner.)
      */
@@ -33,7 +31,7 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
     // The number of creature accessories (not creature accessory rarity classes!)
     uint256 constant NUM_ITEM_OPTIONS = 6;
 
-    /*
+    /**
      * Three different options for minting CreatureAccessories (basic, premium, and gold).
      */
     uint256 public constant BASIC_LOOTBOX = NUM_ITEM_OPTIONS + 0;
@@ -48,7 +46,7 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
         address _proxyRegistryAddress,
         address _nftAddress,
         address _lootBoxAddress
-    ) {
+    ) public {
         proxyRegistryAddress = _proxyRegistryAddress;
         nftAddress = _nftAddress;
         lootBoxAddress = _lootBoxAddress;
@@ -58,39 +56,36 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
     // FACTORY INTERFACE METHODS
     /////
 
-    function name() override external pure returns (string memory) {
+    function name() external view returns (string memory) {
         return "OpenSea Creature Accessory Pre-Sale";
     }
 
-    function symbol() override external pure returns (string memory) {
+    function symbol() external view returns (string memory) {
         return "OSCAP";
     }
 
-    function supportsFactoryInterface() override external pure returns (bool) {
+    function supportsFactoryInterface() external view returns (bool) {
         return true;
     }
 
-    function factorySchemaName() override external pure returns (string memory) {
+    function factorySchemaName() external view returns (string memory) {
         return "ERC1155";
     }
 
-    function numOptions() override external pure returns (uint256) {
+    function numOptions() external view returns (uint256) {
         return NUM_LOOTBOX_OPTIONS + NUM_ITEM_OPTIONS;
     }
 
-    function uri(uint256 _optionId) override external pure returns (string memory) {
+    function uri(uint256 _optionId) external view returns (string memory) {
         return
-            string(
-                abi.encodePacked(
-                    baseMetadataURI,
-                    "factory/",
-                    Strings.toString(_optionId)
-                    )
-                );
+            Strings.strConcat(
+                baseMetadataURI,
+                "factory/",
+                Strings.uint2str(_optionId)
+            );
     }
 
     function canMint(uint256 _optionId, uint256 _amount)
-        override
         external
         view
         returns (bool)
@@ -103,7 +98,7 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
         address _toAddress,
         uint256 _amount,
         bytes calldata _data
-    ) override external nonReentrant() {
+    ) external nonReentrant() {
         return _mint(_optionId, _toAddress, _amount, _data);
     }
 
@@ -180,7 +175,6 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
      * NOTE: Called by `canMint`
      */
     function balanceOf(address _owner, uint256 _optionId)
-        override
         public
         view
         returns (uint256)
