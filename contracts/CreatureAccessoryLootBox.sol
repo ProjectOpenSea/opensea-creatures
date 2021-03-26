@@ -1,9 +1,7 @@
-// SPDX-License-Identifier: MIT
+pragma solidity ^0.5.11;
 
-pragma solidity ^0.8.0;
 
-import "openzeppelin-solidity/contracts/security/ReentrancyGuard.sol";
-import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
 import "./ERC1155Tradable.sol";
 import "./LootBoxRandomness.sol";
 
@@ -15,9 +13,10 @@ import "./LootBoxRandomness.sol";
  */
 contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
   using LootBoxRandomness for LootBoxRandomness.LootBoxRandomnessState;
-  using SafeMath for uint256;
 
   LootBoxRandomness.LootBoxRandomnessState state;
+
+  mapping (uint256 => uint256) tokenSupply;
 
   /**
    * @dev Example constructor. Sets minimal configuration.
@@ -29,9 +28,10 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
   ERC1155Tradable(
     "OpenSea Creature Accessory Loot Box",
     "OSCALOOT",
-    "",
     _proxyRegistryAddress
-  ) {}
+  )
+  public {
+  }
 
   function setState(
     address _factoryAddress,
@@ -81,7 +81,7 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
     uint256 _optionId,
     uint256 _amount,
     bytes memory _data
-  ) override public nonReentrant {
+  ) public nonReentrant {
     require(_isOwnerOrProxy(msg.sender), "Lootbox: owner or proxy only");
     require(_optionId < state.numOptions, "Lootbox: Invalid Option");
     // Option ID is used as a token ID here
@@ -96,7 +96,7 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
     uint256 _id,
     uint256 _quantity,
     bytes memory _data
-  ) override internal  {
+  ) internal  {
     tokenSupply[_id] = tokenSupply[_id].add(_quantity);
     super._mint(_to, _id, _quantity, _data);
   }

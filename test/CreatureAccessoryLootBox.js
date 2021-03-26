@@ -155,10 +155,10 @@ contract("CreatureAccessoryLootBox", (accounts) => {
         receipt,
         'TransferSingle',
         {
-          from: testVals.ADDRESS_ZERO,
-          to: userB,
-          id: option,
-          value: amount
+          _from: testVals.ADDRESS_ZERO,
+          _to: userB,
+          _id: option,
+          _amount: amount
         }
       );
     });
@@ -177,10 +177,10 @@ contract("CreatureAccessoryLootBox", (accounts) => {
         receipt,
         'TransferSingle',
         {
-          from: testVals.ADDRESS_ZERO,
-          to: userB,
+          _from: testVals.ADDRESS_ZERO,
+          _to: userB,
           //_id: option.add(toBN(1)),
-          value: amount
+          _amount: amount
         }
       );
     });

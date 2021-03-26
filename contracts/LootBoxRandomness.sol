@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: MIT
+pragma solidity ^0.5.11;
 
-pragma solidity ^0.8.0;
 
-import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
+import "multi-token-standard/contracts/utils/SafeMath.sol";
+
 
 /*
   DESIGN NOTES:
@@ -27,9 +27,9 @@ import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
  */
 
 
-abstract contract Factory {
-    function mint(uint256 _optionId, address _toAddress, uint256 _amount, bytes calldata _data) virtual external;
-    function balanceOf(address _owner, uint256 _optionId) virtual public view returns (uint256);
+contract Factory {
+    function mint(uint256 _optionId, address _toAddress, uint256 _amount, bytes calldata _data) external;
+    function balanceOf(address _owner, uint256 _optionId) public view returns (uint256);
 }
 
 
