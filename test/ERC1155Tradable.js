@@ -52,11 +52,11 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
   before(async () => {
     proxy = await MockProxyRegistry.new();
     await proxy.setProxy(owner, proxyForOwner);
-    instance = await ERC1155Tradable.new(NAME, SYMBOL, proxy.address);
+    instance = await ERC1155Tradable.new(NAME, SYMBOL, vals.URI_BASE, proxy.address);
   });
 
   describe('#constructor()', () => {
-    it('should set the token name and symbol', async () => {
+    it('should set the token name, symbol, and URI', async () => {
       const name = await instance.name();
       assert.equal(name, NAME);
       const symbol = await instance.symbol();
@@ -73,11 +73,11 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
            await instance.create(owner, tokenId, 0, "", "0x0", { from: owner }),
            'TransferSingle',
            {
-             _operator: owner,
-             _from: vals.ADDRESS_ZERO,
-             _to: owner,
-             _id: toBN(tokenId),
-             _amount: toBN(0)
+             operator: owner,
+             from: vals.ADDRESS_ZERO,
+             to: owner,
+             id: toBN(tokenId),
+             value: toBN(0)
            }
          );
          const supply = await instance.tokenSupply(tokenId);
@@ -98,11 +98,11 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
            ),
            'TransferSingle',
            {
-             _operator: owner,
-             _from: vals.ADDRESS_ZERO,
-             _to: owner,
-             _id: toBN(tokenId),
-             _amount: MINT_AMOUNT
+             operator: owner,
+             from: vals.ADDRESS_ZERO,
+             to: owner,
+             id: toBN(tokenId),
+             value: MINT_AMOUNT
            }
          );
          const supply = await instance.tokenSupply(tokenId);
@@ -114,15 +114,16 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
     it('should set tokenSupply on creation',
        async () => {
          tokenId += 1;
+         tokenSupply = 33
          truffleAssert.eventEmitted(
-           await instance.create(owner, tokenId, 33, "", "0x0", { from: owner }),
+           await instance.create(owner, tokenId, tokenSupply, "", "0x0", { from: owner }),
            'TransferSingle',
-           { _id: toBN(tokenId) }
+           { id: toBN(tokenId) }
          );
          const balance = await instance.balanceOf(owner, tokenId);
-         assert.ok(balance.eq(toBN(33)));
+         assert.ok(balance.eq(toBN(tokenSupply)));
          const supply = await instance.tokenSupply(tokenId);
-         assert.ok(supply.eq(toBN(33)));
+         assert.ok(supply.eq(toBN(tokenSupply)));
          assert.ok(supply.eq(balance));
        });
 
@@ -135,13 +136,13 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
          await truffleAssert.eventEmitted(
            await instance.create(owner, tokenId, 0, "", "0x0", { from: owner }),
            'TransferSingle',
-           { _id: toBN(tokenId) }
+           { id: toBN(tokenId) }
          );
          tokenId += 1;
          await truffleAssert.eventEmitted(
            await instance.create(owner, tokenId, 0, "", "0x0", { from: owner }),
            'TransferSingle',
-           { _id: toBN(tokenId) }
+           { id: toBN(tokenId) }
          );
        });
 
@@ -169,8 +170,8 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
            ),
            'URI',
            {
-             _uri: vals.URI_BASE,
-             _id: toBN(tokenId)
+             value: vals.URI_BASE,
+             id: toBN(tokenId)
            }
          );
        });
@@ -221,7 +222,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
   describe('#setCreator()', () => {
     it('should allow the token creator to set creator to another address',
        async () => {
-         instance.setCreator(userA, [INITIAL_TOKEN_ID], {from: owner});
+         await instance.setCreator(userA, [INITIAL_TOKEN_ID], {from: owner});
          const tokenCreator = await instance.creators(INITIAL_TOKEN_ID);
          assert.equal(tokenCreator, userA);
        });
@@ -300,8 +301,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
              "0x0",
              {from: creator}
            ),
-           truffleAssert.ErrorType.revert,
-           'OVERFLOW'
+           truffleAssert.ErrorType.revert
          );
        });
   });
@@ -331,8 +331,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
            "0x0",
            { from: creator }
          ),
-         truffleAssert.ErrorType.revert,
-         'OVERFLOW'
+         truffleAssert.ErrorType.revert
        )
       );
 
@@ -350,25 +349,11 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
        ));
   });
 
-  describe ('#setBaseMetadataURI()', () => {
-    it('should allow the owner to set the base metadata url', async () =>
-       truffleAssert.passes(
-         instance.setBaseMetadataURI(vals.URI_BASE, { from: owner })
-       ));
-
-    it('should not allow non-owner to set the base metadata url', async () =>
-       truffleAssert.fails(
-         instance.setBaseMetadataURI(vals.URI_BASE, { from: userA }),
-         truffleAssert.ErrorType.revert,
-         'Ownable: caller is not the owner'
-       ));
-  });
-
   describe ('#uri()', () => {
-    it('should return the correct uri for a token', async () => {
+    it('should return the uri that supports the substitution method', async () => {
       const uriTokenId = 1;
       const uri = await instance.uri(uriTokenId);
-      assert.equal(uri, `${vals.URI_BASE}${uriTokenId}`);
+      assert.equal(uri, `${vals.URI_BASE}`);
     });
 
     it('should not return the uri for a non-existent token', async () =>
@@ -379,6 +364,47 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
        )
       );
   });
+
+  describe ('#setURI()', () => {
+    newUri = "https://newuri.com/{id}"
+    it('should allow the owner to set the url', async () => {
+       truffleAssert.passes(
+         await instance.setURI(newUri, { from: owner })
+       );
+       const uriTokenId = 1;
+       const uri = await instance.uri(uriTokenId);
+       assert.equal(uri, newUri);
+    });
+
+    it('should not allow non-owner to set the url', async () =>
+       truffleAssert.fails(
+         instance.setURI(newUri, { from: userA }),
+         truffleAssert.ErrorType.revert,
+         'Ownable: caller is not the owner'
+       ));
+  });
+
+  describe ('#setCustomURI()', () => {
+    customUri = "https://customuri.com/metadata"
+    it('should allow the creator to set the custom uri of a token', async () => {
+      tokenId += 1;
+      await instance.create(owner, tokenId, 0, "", "0x0", { from: owner });
+      truffleAssert.passes(
+        await instance.setCustomURI(tokenId, customUri, { from: owner })
+      );
+      const uri = await instance.uri(tokenId);
+      assert.equal(uri, customUri);
+    });
+
+    it('should not allow non-creator to set the custom url of a token', async () => {
+      tokenId += 1;
+      await instance.create(owner, tokenId, 0, "", "0x0", { from: owner });
+      truffleAssert.fails(
+        instance.setCustomURI(tokenId, customUri, { from: userB })
+      );
+      });
+  });
+
 
   describe('#isApprovedForAll()', () => {
     it('should approve proxy address as _operator', async () => {

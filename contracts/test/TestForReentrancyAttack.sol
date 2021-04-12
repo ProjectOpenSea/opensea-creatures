@@ -1,11 +1,13 @@
-pragma solidity ^0.5.11;
+// SPDX-License-Identifier: MIT
 
-import "multi-token-standard/contracts/interfaces/IERC1155TokenReceiver.sol";
+pragma solidity ^0.8.0;
+
+import "openzeppelin-solidity/contracts/token/ERC1155/IERC1155Receiver.sol";
 
 import "../CreatureAccessoryFactory.sol";
 
 
-contract TestForReentrancyAttack is IERC1155TokenReceiver {
+contract TestForReentrancyAttack is IERC1155Receiver {
     // bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))
     bytes4 constant internal ERC1155_RECEIVED_SIG = 0xf23a6e61;
     // bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))
@@ -18,7 +20,7 @@ contract TestForReentrancyAttack is IERC1155TokenReceiver {
     address public factoryAddress;
     uint256 private totalToMint;
 
-    constructor() public {}
+    constructor() {}
 
     function setFactoryAddress(address _factoryAddress) external {
         factoryAddress = _factoryAddress;
@@ -44,6 +46,7 @@ contract TestForReentrancyAttack is IERC1155TokenReceiver {
         uint256 /*_amount*/,
         bytes calldata /*_data*/
     )
+        override
         external
         returns(bytes4)
     {
@@ -58,8 +61,9 @@ contract TestForReentrancyAttack is IERC1155TokenReceiver {
     }
 
     function supportsInterface(bytes4 interfaceID)
+        override
         external
-        view
+        pure
         returns (bool)
     {
         return interfaceID == INTERFACE_ERC165 ||
@@ -69,7 +73,7 @@ contract TestForReentrancyAttack is IERC1155TokenReceiver {
     // We don't use this but we need it for the interface
 
     function onERC1155BatchReceived(address /*_operator*/, address /*_from*/, uint256[] memory /*_ids*/, uint256[] memory /*_values*/, bytes memory /*_data*/)
-        public returns(bytes4)
+        override public pure returns(bytes4)
     {
         return ERC1155_BATCH_RECEIVED_SIG;
     }
