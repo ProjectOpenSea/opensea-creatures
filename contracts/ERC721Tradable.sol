@@ -81,4 +81,9 @@ abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
 
         return super.isApprovedForAll(owner, operator);
     }
+
+    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual override returns (bool) {
+        return super._isApprovedOrOwner(spender, tokenId)
+            || isApprovedForAll(ownerOf(tokenId), spender);
+    }
 }
