@@ -53,7 +53,7 @@ pyzmq==16.0.2
 repoze.lru==0.6
 requests==2.18.4
 rlp==0.5.1
-rsa==3.4.2
+rsa==4.7
 scrypt==0.8.0
 secp256k1==0.13.2
 six==1.11.0
