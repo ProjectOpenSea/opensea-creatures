@@ -95,7 +95,7 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
         view
         returns (bool)
     {
-        return _canMint(msg.sender, _optionId, _amount);
+        return _canMint(_msgSender(), _optionId, _amount);
     }
 
     function mint(
@@ -117,12 +117,12 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
         bytes memory _data
     ) internal {
         require(
-            _canMint(msg.sender, _option, _amount),
+            _canMint(_msgSender(), _option, _amount),
             "CreatureAccessoryFactory#_mint: CANNOT_MINT_MORE"
         );
         if (_option < NUM_ITEM_OPTIONS) {
             require(
-                _isOwnerOrProxy(msg.sender) || msg.sender == lootBoxAddress,
+                _isOwnerOrProxy(_msgSender()) || _msgSender() == lootBoxAddress,
                 "Caller cannot mint accessories"
             );
             // Items are pre-mined (by the owner), so transfer them (We are an
@@ -137,7 +137,7 @@ contract CreatureAccessoryFactory is FactoryERC1155, Ownable, ReentrancyGuard {
                 _data
             );
         } else if (_option < NUM_OPTIONS) {
-            require(_isOwnerOrProxy(msg.sender), "Caller cannot mint boxes");
+            require(_isOwnerOrProxy(_msgSender()), "Caller cannot mint boxes");
             uint256 lootBoxOption = _option - NUM_ITEM_OPTIONS;
             // LootBoxes are not premined, so we need to create or mint them.
             // lootBoxOption is used as a token ID here.

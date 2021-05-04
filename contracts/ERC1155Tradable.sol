@@ -33,18 +33,18 @@ contract ERC1155Tradable is ERC1155, Ownable {
   string public symbol;
 
   /**
-   * @dev Require msg.sender to be the creator of the token id
+   * @dev Require _msgSender() to be the creator of the token id
    */
   modifier creatorOnly(uint256 _id) {
-    require(creators[_id] == msg.sender, "ERC1155Tradable#creatorOnly: ONLY_CREATOR_ALLOWED");
+    require(creators[_id] == _msgSender(), "ERC1155Tradable#creatorOnly: ONLY_CREATOR_ALLOWED");
     _;
   }
 
   /**
-   * @dev Require msg.sender to own more than 0 of the token id
+   * @dev Require _msgSender() to own more than 0 of the token id
    */
   modifier ownersOnly(uint256 _id) {
-    require(balanceOf(msg.sender, _id) > 0, "ERC1155Tradable#ownersOnly: ONLY_OWNERS_ALLOWED");
+    require(balanceOf(_msgSender(), _id) > 0, "ERC1155Tradable#ownersOnly: ONLY_OWNERS_ALLOWED");
     _;
   }
 
@@ -97,7 +97,7 @@ contract ERC1155Tradable is ERC1155, Ownable {
 
   /**
    * @dev Will update the base URI for the token
-   * @param _tokenId The token to upddate. msg.sender must be its creator.
+   * @param _tokenId The token to update. _msgSender() must be its creator.
    * @param _newURI New URI for the token.
    */
   function setCustomURI(
@@ -134,7 +134,7 @@ contract ERC1155Tradable is ERC1155, Ownable {
     bytes memory _data
   ) public onlyOwner returns (uint256) {
     require(!_exists(_id), "token _id already exists");
-    creators[_id] = msg.sender;
+    creators[_id] = _msgSender();
 
     if (bytes(_uri).length > 0) {
       customUri[_id] = _uri;
@@ -179,7 +179,7 @@ contract ERC1155Tradable is ERC1155, Ownable {
   ) public {
     for (uint256 i = 0; i < _ids.length; i++) {
       uint256 _id = _ids[i];
-      require(creators[_id] == msg.sender, "ERC1155Tradable#batchMint: ONLY_CREATOR_ALLOWED");
+      require(creators[_id] == _msgSender(), "ERC1155Tradable#batchMint: ONLY_CREATOR_ALLOWED");
       uint256 quantity = _quantities[i];
       tokenSupply[_id] = tokenSupply[_id].add(quantity);
     }

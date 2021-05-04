@@ -78,9 +78,9 @@ contract CreatureFactory is FactoryERC721, Ownable {
         // Must be sent from the owner proxy or owner.
         ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
         assert(
-            address(proxyRegistry.proxies(owner())) == msg.sender ||
-                owner() == msg.sender ||
-                msg.sender == lootBoxNftAddress
+            address(proxyRegistry.proxies(owner())) == _msgSender() ||
+                owner() == _msgSender() ||
+                _msgSender() == lootBoxNftAddress
         );
         require(canMint(_optionId));
 

@@ -19,7 +19,6 @@ contract ProxyRegistry {
  * ERC721Tradable - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
 abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
-    using Strings for string;
     using SafeMath for uint256;
 
     address proxyRegistryAddress;

@@ -24,13 +24,13 @@ contract CreatureLootBox is ERC721Tradable {
     }
 
     function unpack(uint256 _tokenId) public {
-        require(ownerOf(_tokenId) == msg.sender);
+        require(ownerOf(_tokenId) == _msgSender());
 
         // Insert custom logic for configuring the item here.
         for (uint256 i = 0; i < NUM_CREATURES_PER_BOX; i++) {
             // Mint the ERC721 item(s).
             FactoryERC721 factory = FactoryERC721(factoryAddress);
-            factory.mint(OPTION_ID, msg.sender);
+            factory.mint(OPTION_ID, _msgSender());
         }
 
         // Burn the presale item.

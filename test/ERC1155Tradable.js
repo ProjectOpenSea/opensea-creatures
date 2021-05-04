@@ -301,7 +301,8 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
              "0x0",
              {from: creator}
            ),
-           truffleAssert.ErrorType.revert
+           truffleAssert.ErrorType.revert,
+           "revert"
          );
        });
   });
