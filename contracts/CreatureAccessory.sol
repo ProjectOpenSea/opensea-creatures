@@ -1,4 +1,6 @@
-pragma solidity ^0.5.11;
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
 
 import "./ERC1155Tradable.sol";
 
@@ -8,15 +10,12 @@ import "./ERC1155Tradable.sol";
  */
 contract CreatureAccessory is ERC1155Tradable {
     constructor(address _proxyRegistryAddress)
-        public
         ERC1155Tradable(
             "OpenSea Creature Accessory",
             "OSCA",
+            "https://creatures-api.opensea.io/api/accessory/{id}",
             _proxyRegistryAddress
-        )
-    {
-        _setBaseMetadataURI("https://creatures-api.opensea.io/api/accessory/");
-    }
+        ) {}
 
     function contractURI() public pure returns (string memory) {
         return "https://creatures-api.opensea.io/contract/opensea-erc1155";

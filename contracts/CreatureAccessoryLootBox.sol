@@ -1,7 +1,9 @@
-pragma solidity ^0.5.11;
+// SPDX-License-Identifier: MIT
 
+pragma solidity ^0.8.0;
 
-import "openzeppelin-solidity/contracts/utils/ReentrancyGuard.sol";
+import "openzeppelin-solidity/contracts/security/ReentrancyGuard.sol";
+import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
 import "./ERC1155Tradable.sol";
 import "./LootBoxRandomness.sol";
 
@@ -13,10 +15,9 @@ import "./LootBoxRandomness.sol";
  */
 contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
   using LootBoxRandomness for LootBoxRandomness.LootBoxRandomnessState;
+  using SafeMath for uint256;
 
   LootBoxRandomness.LootBoxRandomnessState state;
-
-  mapping (uint256 => uint256) tokenSupply;
 
   /**
    * @dev Example constructor. Sets minimal configuration.
@@ -28,10 +29,9 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
   ERC1155Tradable(
     "OpenSea Creature Accessory Loot Box",
     "OSCALOOT",
+    "",
     _proxyRegistryAddress
-  )
-  public {
-  }
+  ) {}
 
   function setState(
     address _factoryAddress,
@@ -67,8 +67,8 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
     address _toAddress,
     uint256 _amount
   ) external {
-    // This will underflow if msg.sender does not own enough tokens.
-    _burn(msg.sender, _optionId, _amount);
+    // This will underflow if _msgSender() does not own enough tokens.
+    _burn(_msgSender(), _optionId, _amount);
     // Mint nfts contained by LootBox
     LootBoxRandomness._mint(state, _optionId, _toAddress, _amount, "", address(this));
   }
@@ -81,8 +81,8 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
     uint256 _optionId,
     uint256 _amount,
     bytes memory _data
-  ) public nonReentrant {
-    require(_isOwnerOrProxy(msg.sender), "Lootbox: owner or proxy only");
+  ) override public nonReentrant {
+    require(_isOwnerOrProxy(_msgSender()), "Lootbox: owner or proxy only");
     require(_optionId < state.numOptions, "Lootbox: Invalid Option");
     // Option ID is used as a token ID here
     _mint(_to, _optionId, _amount, _data);
@@ -96,7 +96,7 @@ contract CreatureAccessoryLootBox is ERC1155Tradable, ReentrancyGuard {
     uint256 _id,
     uint256 _quantity,
     bytes memory _data
-  ) internal  {
+  ) override internal  {
     tokenSupply[_id] = tokenSupply[_id].add(_quantity);
     super._mint(_to, _id, _quantity, _data);
   }

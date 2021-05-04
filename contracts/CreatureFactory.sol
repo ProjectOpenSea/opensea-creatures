@@ -1,10 +1,12 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
 
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+pragma solidity ^0.8.0;
+
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
+import "openzeppelin-solidity/contracts/utils/Strings.sol";
 import "./IFactoryERC721.sol";
 import "./Creature.sol";
 import "./CreatureLootBox.sol";
-import "./Strings.sol";
 
 contract CreatureFactory is FactoryERC721, Ownable {
     using Strings for string;
@@ -20,12 +22,12 @@ contract CreatureFactory is FactoryERC721, Ownable {
     address public lootBoxNftAddress;
     string public baseURI = "https://creatures-api.opensea.io/api/factory/";
 
-    /**
+    /*
      * Enforce the existence of only 100 OpenSea creatures.
      */
     uint256 CREATURE_SUPPLY = 100;
 
-    /**
+    /*
      * Three different options for minting Creatures (basic, premium, and gold).
      */
     uint256 NUM_OPTIONS = 3;
@@ -34,7 +36,7 @@ contract CreatureFactory is FactoryERC721, Ownable {
     uint256 LOOTBOX_OPTION = 2;
     uint256 NUM_CREATURES_IN_MULTIPLE_CREATURE_OPTION = 4;
 
-    constructor(address _proxyRegistryAddress, address _nftAddress) public {
+    constructor(address _proxyRegistryAddress, address _nftAddress) {
         proxyRegistryAddress = _proxyRegistryAddress;
         nftAddress = _nftAddress;
         lootBoxNftAddress = address(
@@ -44,23 +46,23 @@ contract CreatureFactory is FactoryERC721, Ownable {
         fireTransferEvents(address(0), owner());
     }
 
-    function name() external view returns (string memory) {
+    function name() override external pure returns (string memory) {
         return "OpenSeaCreature Item Sale";
     }
 
-    function symbol() external view returns (string memory) {
+    function symbol() override external pure returns (string memory) {
         return "CPF";
     }
 
-    function supportsFactoryInterface() public view returns (bool) {
+    function supportsFactoryInterface() override public pure returns (bool) {
         return true;
     }
 
-    function numOptions() public view returns (uint256) {
+    function numOptions() override public view returns (uint256) {
         return NUM_OPTIONS;
     }
 
-    function transferOwnership(address newOwner) public onlyOwner {
+    function transferOwnership(address newOwner) override public onlyOwner {
         address _prevOwner = owner();
         super.transferOwnership(newOwner);
         fireTransferEvents(_prevOwner, newOwner);
@@ -72,13 +74,13 @@ contract CreatureFactory is FactoryERC721, Ownable {
         }
     }
 
-    function mint(uint256 _optionId, address _toAddress) public {
+    function mint(uint256 _optionId, address _toAddress) override public {
         // Must be sent from the owner proxy or owner.
         ProxyRegistry proxyRegistry = ProxyRegistry(proxyRegistryAddress);
         assert(
-            address(proxyRegistry.proxies(owner())) == msg.sender ||
-                owner() == msg.sender ||
-                msg.sender == lootBoxNftAddress
+            address(proxyRegistry.proxies(owner())) == _msgSender() ||
+                owner() == _msgSender() ||
+                _msgSender() == lootBoxNftAddress
         );
         require(canMint(_optionId));
 
@@ -101,7 +103,7 @@ contract CreatureFactory is FactoryERC721, Ownable {
         }
     }
 
-    function canMint(uint256 _optionId) public view returns (bool) {
+    function canMint(uint256 _optionId) override public view returns (bool) {
         if (_optionId >= NUM_OPTIONS) {
             return false;
         }
@@ -123,8 +125,8 @@ contract CreatureFactory is FactoryERC721, Ownable {
         return creatureSupply < (CREATURE_SUPPLY - numItemsAllocated);
     }
 
-    function tokenURI(uint256 _optionId) external view returns (string memory) {
-        return Strings.strConcat(baseURI, Strings.uint2str(_optionId));
+    function tokenURI(uint256 _optionId) override external view returns (string memory) {
+        return string(abi.encodePacked(baseURI, Strings.toString(_optionId)));
     }
 
     /**
