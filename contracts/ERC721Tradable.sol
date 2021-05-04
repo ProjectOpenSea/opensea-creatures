@@ -80,26 +80,4 @@ abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
 
         return super.isApprovedForAll(owner, operator);
     }
-
-    /**
-     * Override approve as the OZ version does not respect an overriden isApprovedForAll method.
-     */
-    function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ERC721.ownerOf(tokenId);
-        require(to != owner, "ERC721: approval to current owner");
-
-        require(_msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            "ERC721: approve caller is not owner nor approved for all"
-        );
-
-        _approve(to, tokenId);
-    }
-
-    /**
-     * Override _isApprovedOrOwner as the OZ version does not respect an overriden isApprovedForAll method.
-     */
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual override returns (bool) {
-        return isApprovedForAll(ownerOf(tokenId), spender)
-            || super._isApprovedOrOwner(spender, tokenId);
-    }
 }
