@@ -20,6 +20,8 @@
   "dependencies": {
     "@0x/subproviders": "^6.4.1",
     "eth-gas-reporter": "^0.2.17",
+    "eth-sig-util": "^3.0.1",
+    "ethereum-waffle": "^3.0.0",
     "opensea-js": "^1.1.5",
     "openzeppelin-solidity": "~4.1.0",
     "truffle": "^5.1.30",
