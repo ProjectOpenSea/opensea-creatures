@@ -35,7 +35,7 @@ module.exports = {
         return new HDWalletProvider(MNEMONIC, rinkebyNodeUrl);
       },
       gas: 5000000,
-      network_id: "*",
+      network_id: 4,
     },
     live: {
       network_id: 1,
@@ -63,5 +63,11 @@ module.exports = {
         },
       },
     },
+  },
+  plugins: [
+    'truffle-plugin-verify'
+  ],
+  api_keys: {
+    etherscan: 'ETHERSCAN_API_KEY_FOR_VERIFICATION'
   }
 };
