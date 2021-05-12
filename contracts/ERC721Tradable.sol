@@ -8,6 +8,9 @@ import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/utils/Strings.sol";
 
+import "./common/meta-transactions/ContentMixin.sol";
+import "./common/meta-transactions/NativeMetaTransaction.sol";
+
 contract OwnableDelegateProxy {}
 
 contract ProxyRegistry {
@@ -18,7 +21,7 @@ contract ProxyRegistry {
  * @title ERC721Tradable
  * ERC721Tradable - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
-abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
+abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTransaction, Ownable {
     using SafeMath for uint256;
 
     address proxyRegistryAddress;
@@ -30,6 +33,7 @@ abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
         address _proxyRegistryAddress
     ) ERC721(_name, _symbol) {
         proxyRegistryAddress = _proxyRegistryAddress;
+        _initializeEIP712(_name);
     }
 
     /**
@@ -79,5 +83,17 @@ abstract contract ERC721Tradable is ERC721Enumerable, Ownable {
         }
 
         return super.isApprovedForAll(owner, operator);
+    }
+
+    /**
+     * This is used instead of msg.sender as transactions won't be sent by the original token owner, but by OpenSea.
+     */
+    function _msgSender()
+        internal
+        override
+        view
+        returns (address sender)
+    {
+        return ContextMixin.msgSender();
     }
 }

@@ -7,6 +7,8 @@ import "openzeppelin-solidity/contracts/token/ERC1155/ERC1155.sol";
 import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/utils/Strings.sol";
 
+import "./common/meta-transactions/ContentMixin.sol";
+import "./common/meta-transactions/NativeMetaTransaction.sol";
 
 contract OwnableDelegateProxy { }
 
@@ -19,7 +21,7 @@ contract ProxyRegistry {
  * ERC1155Tradable - ERC1155 contract that whitelists an operator address, has create and mint functionality, and supports useful standards from OpenZeppelin,
   like _exists(), name(), symbol(), and totalSupply()
  */
-contract ERC1155Tradable is ERC1155, Ownable {
+contract ERC1155Tradable is ContextMixin, ERC1155, NativeMetaTransaction, Ownable {
   using Strings for string;
   using SafeMath for uint256;
 
@@ -57,6 +59,7 @@ contract ERC1155Tradable is ERC1155, Ownable {
     name = _name;
     symbol = _symbol;
     proxyRegistryAddress = _proxyRegistryAddress;
+    _initializeEIP712(name);
   }
 
   function uri(
@@ -244,4 +247,16 @@ contract ERC1155Tradable is ERC1155, Ownable {
   ) external view returns (bool) {
     return _exists(_id);
   }
+
+    /**
+     * This is used instead of msg.sender as transactions won't be sent by the original token owner, but by OpenSea.
+     */
+    function _msgSender()
+        internal
+        override
+        view
+        returns (address sender)
+    {
+        return ContextMixin.msgSender();
+    }
 }

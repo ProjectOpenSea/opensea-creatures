@@ -1,7 +1,8 @@
 /* libraries used */
 
 const truffleAssert = require('truffle-assertions');
-
+const { MockProvider } = require("ethereum-waffle");
+const { signMetaTransaction } = require("./utils/signMetaTransaction.js")
 
 const vals = require('../lib/testValuesCommon.js');
 
@@ -12,12 +13,16 @@ const ERC1155Tradable = artifacts.require("../contracts/ERC1155Tradable.sol");
 const MockProxyRegistry = artifacts.require(
   "../contracts/MockProxyRegistry.sol"
 );
+const ApprovedSpenderContract = artifacts.require(
+  "../contracts/test/ApprovedSpenderContract.sol"
+);
 
 
 /* Useful aliases */
 
 const toBN = web3.utils.toBN;
 
+const web3ERC1155 = new web3.eth.Contract(ERC1155Tradable.abi)
 
 contract("ERC1155Tradable - ERC 1155", (accounts) => {
   const NAME = 'ERC-1155 Test Contract';
@@ -53,6 +58,7 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
     proxy = await MockProxyRegistry.new();
     await proxy.setProxy(owner, proxyForOwner);
     instance = await ERC1155Tradable.new(NAME, SYMBOL, vals.URI_BASE, proxy.address);
+    approvedContract = await ApprovedSpenderContract.new();
   });
 
   describe('#constructor()', () => {
@@ -436,6 +442,49 @@ contract("ERC1155Tradable - ERC 1155", (accounts) => {
     it('should not accept non-approved _operator for _owner', async () => {
       await instance.setApprovalForAll(userB, false, { from: userA });
       assert.isNotOk(await instance.isApprovedForAll(userA, userB));
+    });
+  });
+
+  describe("#executeMetaTransaction()", function () {
+    it("should allow calling setApprovalForAll with a meta transaction", async function () {
+      const wallet = new MockProvider().createEmptyWallet();
+      const user = await wallet.getAddress()
+
+      let name = await instance.name();
+      let nonce = await instance.getNonce(user);
+      let version = await instance.ERC712_VERSION();
+      let chainId = await instance.getChainId();
+      let domainData = {
+        name: name,
+        version: version,
+        verifyingContract: instance.address,
+        salt: '0x' + web3.utils.toHex(chainId).substring(2).padStart(64, '0'),
+      };
+      const functionSignature = await web3ERC1155.methods.setApprovalForAll(approvedContract.address, true).encodeABI()
+      let { r, s, v } = await signMetaTransaction(
+        wallet,
+        nonce,
+        domainData,
+        functionSignature
+      );
+
+      assert.equal(await instance.isApprovedForAll(user, approvedContract.address), false);
+      truffleAssert.eventEmitted(
+        await instance.executeMetaTransaction(
+          user,
+          functionSignature,
+          r,
+          s,
+          v
+        ),
+        'ApprovalForAll',
+        {
+          account: user,
+          operator: approvedContract.address,
+          approved: true
+        }
+      );
+      assert.equal(await instance.isApprovedForAll(user, approvedContract.address), true);
     });
   });
 });
