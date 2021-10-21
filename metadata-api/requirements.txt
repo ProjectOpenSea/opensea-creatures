@@ -2,7 +2,7 @@ aiohttp==2.2.5
 alabaster==0.7.10
 asn1crypto==0.23.0
 async-timeout==1.3.0
-Babel==2.5.0
+Babel==2.9.1
 bitcoin==1.1.42
 cachetools==2.0.1
 certifi==2017.7.27.1
