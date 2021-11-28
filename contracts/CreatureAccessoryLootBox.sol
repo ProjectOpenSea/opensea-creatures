@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin-solidity/contracts/security/ReentrancyGuard.sol";
-import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./ERC1155Tradable.sol";
 import "./LootBoxRandomness.sol";
 

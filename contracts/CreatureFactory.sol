@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
-import "openzeppelin-solidity/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./IFactoryERC721.sol";
 import "./Creature.sol";
 import "./CreatureLootBox.sol";

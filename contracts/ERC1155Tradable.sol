@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
-import "openzeppelin-solidity/contracts/token/ERC1155/ERC1155.sol";
-import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "./common/meta-transactions/ContentMixin.sol";
 import "./common/meta-transactions/NativeMetaTransaction.sol";

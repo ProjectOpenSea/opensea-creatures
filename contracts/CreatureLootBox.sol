@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import "./ERC721Tradable.sol";
 import "./Creature.sol";
 import "./IFactoryERC721.sol";
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
 
 /**
  * @title CreatureLootBox

@@ -2,17 +2,20 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-solidity/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
-import "openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "./common/meta-transactions/ContentMixin.sol";
 import "./common/meta-transactions/NativeMetaTransaction.sol";
 
 contract OwnableDelegateProxy {}
 
+/**
+ * Used to delegate ownership of a contract to another address, to save on unneeded transactions to approve contract use for users
+ */
 contract ProxyRegistry {
     mapping(address => OwnableDelegateProxy) public proxies;
 }
@@ -21,11 +24,17 @@ contract ProxyRegistry {
  * @title ERC721Tradable
  * ERC721Tradable - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
-abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTransaction, Ownable {
+abstract contract ERC721Tradable is ERC721, ContextMixin, NativeMetaTransaction, Ownable {
     using SafeMath for uint256;
+    using Counters for Counters.Counter;
 
+    /**
+     * We rely on the OZ Counter util to keep track of the next available ID.
+     * We track the nextTokenId instead of the currentTokenId to save users on gas costs. 
+     * Read more about it here: https://shiny.mirror.xyz/OUampBbIz9ebEicfGnQf5At_ReMHlZy0tB4glb9xQ0E
+     */ 
+    Counters.Counter private _nextTokenId;
     address proxyRegistryAddress;
-    uint256 private _currentTokenId = 0;
 
     constructor(
         string memory _name,
@@ -33,6 +42,8 @@ abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTr
         address _proxyRegistryAddress
     ) ERC721(_name, _symbol) {
         proxyRegistryAddress = _proxyRegistryAddress;
+        // nextTokenId is initialized to 1, since starting at 0 leads to higher gas cost for the first minter
+        _nextTokenId.increment();
         _initializeEIP712(_name);
     }
 
@@ -41,24 +52,17 @@ abstract contract ERC721Tradable is ContextMixin, ERC721Enumerable, NativeMetaTr
      * @param _to address of the future owner of the token
      */
     function mintTo(address _to) public onlyOwner {
-        uint256 newTokenId = _getNextTokenId();
-        _mint(_to, newTokenId);
-        _incrementTokenId();
+        uint256 currentTokenId = _nextTokenId.current();
+        _nextTokenId.increment();
+        _safeMint(_to, currentTokenId);
     }
 
     /**
-     * @dev calculates the next token ID based on value of _currentTokenId
-     * @return uint256 for the next token ID
+        @dev Returns the total tokens minted so far.
+        1 is always subtracted from the Counter since it tracks the next available tokenId.
      */
-    function _getNextTokenId() private view returns (uint256) {
-        return _currentTokenId.add(1);
-    }
-
-    /**
-     * @dev increments the value of _currentTokenId
-     */
-    function _incrementTokenId() private {
-        _currentTokenId++;
+    function totalSupply() public view returns (uint256) {
+        return _nextTokenId.current() - 1;
     }
 
     function baseTokenURI() virtual public pure returns (string memory);
