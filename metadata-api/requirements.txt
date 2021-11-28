@@ -29,7 +29,7 @@ httpretty==0.8.14
 idna==2.6
 imagesize==0.7.1
 itsdangerous==0.24
-Jinja2==2.9.6
+Jinja2==2.11.3
 json-rpc==1.10.3
 MarkupSafe==1.0
 multidict==3.1.3
