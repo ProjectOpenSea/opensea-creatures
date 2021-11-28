@@ -42,7 +42,7 @@ protobuf==3.5.2.post1
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
 pycparser==2.18
-pycryptodome==3.4.7
+pycryptodome==3.6.6
 pyethash==0.1.27
 Pygments==2.7.4
 pylru==1.0.9
