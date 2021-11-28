@@ -51,7 +51,7 @@ pytz==2017.2
 PyYAML==5.4
 pyzmq==16.0.2
 repoze.lru==0.6
-requests==2.18.4
+requests==2.20.0
 rlp==0.5.1
 rsa==4.7
 scrypt==0.8.0
