@@ -134,7 +134,7 @@ contract CreatureFactory is FactoryERC721, Ownable {
      * Use transferFrom so the frontend doesn't have to worry about different method names.
      */
     function transferFrom(
-        address _from,
+        address,
         address _to,
         uint256 _tokenId
     ) public {
@@ -169,7 +169,7 @@ contract CreatureFactory is FactoryERC721, Ownable {
      * Hack to get things to work automatically on OpenSea.
      * Use isApprovedForAll so the frontend doesn't have to worry about different method names.
      */
-    function ownerOf(uint256 _tokenId) public view returns (address _owner) {
+    function ownerOf(uint256) public view returns (address _owner) {
         return owner();
     }
 }
