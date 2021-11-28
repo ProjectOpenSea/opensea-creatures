@@ -38,6 +38,7 @@ sudo npm explore npm -g -- npm install node-gyp@latest # Update node-gyp
 
 ### Deploying to the Rinkeby network.
 
+0. Add test fundings to your Rinkeby testnet node on https://faucet.rinkeby.io
 1. To access a Rinkeby testnet node, you'll need to sign up for [Alchemy](https://dashboard.alchemyapi.io/signup?referral=affiliate:e535c3c3-9bc4-428f-8e27-4b70aa2e8ca5) and get a free API key. Click "View Key" and then copy the part of the URL after `v2/`.
    a. You can use [Infura](https://infura.io) if you want as well. Just change `ALCHEMY_KEY` below to `INFURA_KEY`.
 2. Using your API key and the mnemonic for your Metamask wallet (make sure you're using a Metamask seed phrase that you're comfortable using for testing purposes), run:
