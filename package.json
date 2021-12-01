@@ -23,7 +23,7 @@
     "eth-sig-util": "^3.0.1",
     "ethereum-waffle": "^3.0.0",
     "opensea-js": "^1.1.5",
-    "openzeppelin-solidity": "~4.1.0",
+    "@openzeppelin/contracts": "4.4.0",
     "truffle": "^5.1.30",
     "truffle-assertions": "^0.9.2",
     "truffle-contract-size": "^2.0.1",
@@ -32,7 +32,7 @@
     "web3": "^1.0.0-beta.34"
   },
   "engines": {
-    "node": "^12.18.x",
+    "node": "^14.15.x",
     "yarn": "~1.22.4"
   },
   "devDependencies": {
