@@ -38,7 +38,8 @@ module.exports = async (deployer, network, addresses) => {
   if (DEPLOY_CREATURES_SALE) {
     await deployer.deploy(CreatureFactory, proxyRegistryAddress, Creature.address, {gas: 7000000});
     const creature = await Creature.deployed();
-    await creature.transferOwnership(CreatureFactory.address);
+    const creatureFactory = await CreatureFactory.deployed();
+    await creature.transferOwnership(creatureFactory.address);
   }
 
   if (DEPLOY_ACCESSORIES) {
@@ -73,7 +74,7 @@ module.exports = async (deployer, network, addresses) => {
     const accessories = await CreatureAccessory.deployed();
     const factory = await CreatureAccessoryFactory.deployed();
     await accessories.transferOwnership(
-      CreatureAccessoryFactory.address
+      factory.address
     );
     await setupCreatureAccessories.setupAccessoryLootBox(lootBox, factory);
     await lootBox.transferOwnership(factory.address);
