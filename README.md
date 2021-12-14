@@ -167,7 +167,7 @@ This is often due to the truffle-hdwallet provider not being able to connect. Go
 
 ### ERC1155 Implementation
 
-To implement the ERC1155 standard, these contracts use the Multi Token Standard by [Horizon Games](https://horizongames.net/), available on [npm](https://www.npmjs.com/package/multi-token-standard) and [github](https://github.com/arcadeum/multi-token-standard) and also under the MIT License.
+To implement the ERC1155 standard, these contracts use the Multi Token Standard by [Horizon Games](https://horizongames.net/), available on [npm](https://www.npmjs.com/package/multi-token-standard) and [GitHub](https://github.com/arcadeum/multi-token-standard) and also under the MIT License.
 
 # Running Local Tests
 
