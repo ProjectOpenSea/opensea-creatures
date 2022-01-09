@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const opensea = require('opensea-js')
 const { WyvernSchemaName } = require('opensea-js/lib/types')
 const OpenSeaPort = opensea.OpenSeaPort
