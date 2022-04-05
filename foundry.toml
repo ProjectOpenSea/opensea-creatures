@@ -6,6 +6,8 @@ remappings = [
     '@openzeppelin/=node_modules/@openzeppelin/',
     'hardhat/=node_modules/hardhat/',
     'ds-test/=lib/ds-test/src/',
+    '@rari-capital/=node_modules/@rari-capital',
+    'forge-std/=lib/forge-std/src/',
 ]
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config

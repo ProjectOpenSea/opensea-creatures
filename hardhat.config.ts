@@ -4,7 +4,18 @@
 
 import dotenv from 'dotenv';
 import '@nomiclabs/hardhat-ethers';
+import { subtask } from 'hardhat/config';
+import { TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS } from "hardhat/builtin-tasks/task-names";
+
 dotenv.config();
+
+subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS)
+  .setAction(async (_, __, runSuper) => {
+    const paths = await runSuper();
+    console.log(paths)
+    return paths.filter((p: any) =>
+      !p.includes("/test/"));
+  });
 
 const { ALCHEMY_KEY, ACCOUNT_PRIVATE_KEY } = process.env;
 
@@ -23,4 +34,5 @@ module.exports = {
       accounts: [`0x${ACCOUNT_PRIVATE_KEY}`]
     },
   },
+  paths: { cache: 'hh-cache' }
 }
