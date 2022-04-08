@@ -24,15 +24,20 @@ contract ProxyRegistry {
  * @title ERC721Tradable
  * ERC721Tradable - ERC721 contract that whitelists a trading address, and has minting functionality.
  */
-abstract contract ERC721Tradable is ERC721, ContextMixin, NativeMetaTransaction, Ownable {
+abstract contract ERC721Tradable is
+    ERC721,
+    ContextMixin,
+    NativeMetaTransaction,
+    Ownable
+{
     using SafeMath for uint256;
     using Counters for Counters.Counter;
 
     /**
      * We rely on the OZ Counter util to keep track of the next available ID.
-     * We track the nextTokenId instead of the currentTokenId to save users on gas costs. 
+     * We track the nextTokenId instead of the currentTokenId to save users on gas costs.
      * Read more about it here: https://shiny.mirror.xyz/OUampBbIz9ebEicfGnQf5At_ReMHlZy0tB4glb9xQ0E
-     */ 
+     */
     Counters.Counter private _nextTokenId;
     address proxyRegistryAddress;
 
@@ -65,19 +70,27 @@ abstract contract ERC721Tradable is ERC721, ContextMixin, NativeMetaTransaction,
         return _nextTokenId.current() - 1;
     }
 
-    function baseTokenURI() virtual public pure returns (string memory);
+    function baseTokenURI() public pure virtual returns (string memory);
 
-    function tokenURI(uint256 _tokenId) override public pure returns (string memory) {
-        return string(abi.encodePacked(baseTokenURI(), Strings.toString(_tokenId)));
+    function tokenURI(uint256 _tokenId)
+        public
+        pure
+        override
+        returns (string memory)
+    {
+        return
+            string(
+                abi.encodePacked(baseTokenURI(), Strings.toString(_tokenId))
+            );
     }
 
     /**
      * Override isApprovedForAll to whitelist user's OpenSea proxy accounts to enable gas-less listings.
      */
     function isApprovedForAll(address owner, address operator)
-        override
         public
         view
+        override
         returns (bool)
     {
         // Whitelist OpenSea proxy contract for easy trading.
@@ -92,12 +105,7 @@ abstract contract ERC721Tradable is ERC721, ContextMixin, NativeMetaTransaction,
     /**
      * This is used instead of msg.sender as transactions won't be sent by the original token owner, but by OpenSea.
      */
-    function _msgSender()
-        internal
-        override
-        view
-        returns (address sender)
-    {
+    function _msgSender() internal view override returns (address sender) {
         return ContextMixin.msgSender();
     }
 }
