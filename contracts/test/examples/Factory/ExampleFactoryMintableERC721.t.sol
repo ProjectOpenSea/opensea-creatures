@@ -2,8 +2,8 @@
 pragma solidity >=0.8.4;
 
 import {DSTestPlusPlus} from "../../testhelpers/DSTestPlusPlus.sol";
-import {ExampleERC721FactoryMintable} from "../../../examples/Factory/examples/ExampleERC721FactoryMintable.sol";
-import {TokenFactory} from "../../../examples/Factory/common/TokenFactory.sol";
+import {ExampleERC721FactoryMintable} from "../../../examples/Factory/ExampleERC721FactoryMintable.sol";
+import {TokenFactory} from "../../../common/factory/TokenFactory.sol";
 
 contract ExampleERC721FactoryMintableTest is DSTestPlusPlus {
     ExampleERC721FactoryMintable test;

@@ -2,8 +2,8 @@
 pragma solidity >=0.8.4;
 
 import {DSTestPlusPlus} from "../../testhelpers/DSTestPlusPlus.sol";
-import {ExampleERC1155FactoryMintable} from "../../../examples/Factory/examples/ExampleERC1155FactoryMintable.sol";
-import {TokenFactory} from "../../../examples/Factory/common/TokenFactory.sol";
+import {ExampleERC1155FactoryMintable} from "../../../examples/Factory/ExampleERC1155FactoryMintable.sol";
+import {TokenFactory} from "../../../common/factory/TokenFactory.sol";
 import {ERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Receiver.sol";
 
 contract ExampleERC1155FactoryMintableTest is DSTestPlusPlus, ERC1155Receiver {

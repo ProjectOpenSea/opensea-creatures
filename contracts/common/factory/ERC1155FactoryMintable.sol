@@ -5,9 +5,9 @@ pragma solidity >=0.8.4;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import {FactoryMintable} from "./common/FactoryMintable.sol";
+import {FactoryMintable} from "./FactoryMintable.sol";
 import {AllowsProxyFromRegistry} from "../../common/lib/AllowsProxyFromRegistry.sol";
-import {TokenFactory} from "./common/TokenFactory.sol";
+import {TokenFactory} from "./TokenFactory.sol";
 
 abstract contract ERC1155FactoryMintable is
     ERC1155,

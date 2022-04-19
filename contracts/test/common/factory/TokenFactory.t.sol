@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.4;
 
-import {DSTestPlusPlus} from "../testhelpers/DSTestPlusPlus.sol";
-import {FactoryMintable} from "../../examples/Factory/common/FactoryMintable.sol";
-import {TokenFactory} from "../../examples/Factory/common/TokenFactory.sol";
-import {ProxyRegistry, OwnableDelegateProxy} from "../../common/lib/ProxyRegistry.sol";
-import {ExampleERC721FactoryMintable} from "../../examples/Factory/examples/ExampleERC721FactoryMintable.sol";
+import {DSTestPlusPlus} from "../../testhelpers/DSTestPlusPlus.sol";
+import {FactoryMintable} from "../../../common/factory/FactoryMintable.sol";
+import {TokenFactory} from "../../../common/factory/TokenFactory.sol";
+import {ProxyRegistry, OwnableDelegateProxy} from "../../../common/lib/ProxyRegistry.sol";
+import {ExampleERC721FactoryMintable} from "../../../examples/Factory/ExampleERC721FactoryMintable.sol";
 
 contract ProxyRegistryImpl is ProxyRegistry {
     function registerProxy(address _owner, address _operator) public {
