@@ -22,7 +22,7 @@ contract ERC721GasFreeListing is ERC721, AllowsProxyFromRegistry {
         returns (bool)
     {
         return
-            _isApprovedForProxy(_owner, _operator) ||
+            isProxyOfOwner(_owner, _operator) ||
             super.isApprovedForAll(_owner, _operator);
     }
 }

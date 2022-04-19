@@ -29,8 +29,8 @@ contract AllowsProxyFromRegistry is Ownable {
     ///@param _owner address of token owner
     ///@param _operator address of operator
     ///@return bool true if operator is approved
-    function _isApprovedForProxy(address _owner, address _operator)
-        internal
+    function isProxyOfOwner(address _owner, address _operator)
+        public
         view
         returns (bool)
     {

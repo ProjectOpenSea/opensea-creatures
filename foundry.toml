@@ -2,6 +2,8 @@
 src = 'contracts'
 out = 'artifacts'
 libs = ['node_modules']
+optimizer = true
+optimizer_runs = 1000000
 remappings = [
     '@openzeppelin/=node_modules/@openzeppelin/',
     'hardhat/=node_modules/hardhat/',
